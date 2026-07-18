@@ -1,0 +1,1384 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>TrackAssist – AI Chatbot</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Exo+2:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap"
+    rel="stylesheet">
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box
+    }
+
+    html,
+    body,
+    #root {
+      width: 100%;
+      height: 100%;
+      overflow: hidden
+    }
+
+    body {
+      font-family: 'Exo 2', sans-serif
+    }
+
+    :root {
+      --bg0: #080e1a;
+      --bg1: #0b1422;
+      --bg2: #0f1c30;
+      --bg3: #132036;
+      --c: #00d4ff;
+      --cd: rgba(0, 212, 255, .7);
+      --cglow: rgba(0, 212, 255, .18);
+      --cborder: rgba(0, 212, 255, .32);
+      --cdark: rgba(0, 180, 220, .5);
+      --txt: #d4eaf8;
+      --txt2: #7aaac8;
+      --txt3: #2d5070;
+      --red: #ff3d5a;
+      --green: #00ffa0;
+      --glass: rgba(11, 20, 34, .82);
+      --card: rgba(15, 28, 48, .9);
+    }
+
+    .light {
+      --bg0: #e8eff8;
+      --bg1: #dde7f4;
+      --bg2: #f0f5fc;
+      --bg3: #fff;
+      --c: #0077bb;
+      --cd: rgba(0, 119, 187, .7);
+      --cglow: rgba(0, 119, 187, .12);
+      --cborder: rgba(0, 119, 187, .3);
+      --txt: #0a1a2e;
+      --txt2: #3a6080;
+      --txt3: #9ab8d0;
+      --glass: rgba(220, 230, 245, .88);
+      --card: rgba(240, 248, 255, .96);
+    }
+
+    ::-webkit-scrollbar {
+      width: 3px
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--cborder);
+      border-radius: 2px
+    }
+
+    /* ───── APP SHELL ───── */
+    .app {
+      display: flex;
+      height: 100vh;
+      background: var(--bg0);
+      position: relative;
+      overflow: hidden
+    }
+
+    /* animated grid bg */
+    .app::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      background-image: linear-gradient(rgba(0, 212, 255, .025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 212, 255, .025) 1px, transparent 1px);
+      background-size: 44px 44px;
+    }
+
+    /* top glow sweep */
+    .sweep {
+      height: 2px;
+      flex-shrink: 0;
+      background: linear-gradient(90deg, transparent 0%, var(--c) 50%, transparent 100%);
+      background-size: 200% 100%;
+      animation: sw 3s linear infinite
+    }
+
+    @keyframes sw {
+      0% {
+        background-position: 200% 0
+      }
+
+      100% {
+        background-position: -200% 0
+      }
+    }
+
+    /* ───── SIDEBAR ───── */
+    .sb {
+      width: 68px;
+      background: var(--bg1);
+      border-right: 1px solid var(--cborder);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 14px 0;
+      z-index: 20;
+      flex-shrink: 0;
+      position: relative
+    }
+
+    .sb-logo {
+      width: 42px;
+      height: 42px;
+      border-radius: 10px;
+      overflow: hidden;
+      cursor: pointer;
+      box-shadow: 0 0 18px var(--cglow);
+      margin-bottom: 24px;
+      transition: .3s
+    }
+
+    .sb-logo:hover {
+      box-shadow: 0 0 28px rgba(0, 212, 255, .4)
+    }
+
+    .sb-logo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover
+    }
+
+    .nb {
+      width: 42px;
+      height: 42px;
+      border-radius: 11px;
+      border: none;
+      background: transparent;
+      color: var(--txt2);
+      font-size: 19px;
+      cursor: pointer;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 6px;
+      transition: .2s
+    }
+
+    .nb:hover,
+    .nb.on {
+      background: var(--cglow);
+      color: var(--c)
+    }
+
+    .nb.on::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 3px;
+      height: 22px;
+      background: var(--c);
+      border-radius: 0 2px 2px 0
+    }
+
+    .nb.red:hover {
+      background: rgba(255, 61, 90, .15);
+      color: var(--red)
+    }
+
+    .sp {
+      flex: 1
+    }
+
+    .tip {
+      position: absolute;
+      left: 56px;
+      background: var(--bg3);
+      border: 1px solid var(--cborder);
+      color: var(--c);
+      font-size: 11px;
+      padding: 3px 9px;
+      border-radius: 6px;
+      white-space: nowrap;
+      font-family: 'Rajdhani', sans-serif;
+      letter-spacing: 1px;
+      font-weight: 600;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity .15s;
+      z-index: 99
+    }
+
+    .nb:hover .tip {
+      opacity: 1
+    }
+
+    /* ───── MAIN ───── */
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      z-index: 10;
+      min-width: 0
+    }
+
+    /* ───── HEADER ───── */
+    .hdr {
+      height: 62px;
+      padding: 0 26px;
+      background: var(--glass);
+      border-bottom: 1px solid var(--cborder);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+      backdrop-filter: blur(14px)
+    }
+
+    .hdr-l {
+      display: flex;
+      align-items: center;
+      gap: 13px
+    }
+
+    .hdr-logo {
+      width: 30px;
+      height: 30px;
+      border-radius: 7px;
+      overflow: hidden;
+      object-fit: cover
+    }
+
+    .hdr-name {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 21px;
+      font-weight: 700;
+      color: var(--c);
+      letter-spacing: 3px;
+      text-transform: uppercase
+    }
+
+    .hdr-sub {
+      font-size: 10px;
+      color: var(--txt2);
+      letter-spacing: 1.5px;
+      text-transform: uppercase
+    }
+
+    .hdr-r {
+      display: flex;
+      align-items: center;
+      gap: 12px
+    }
+
+    .badge {
+      border: 1px solid var(--cborder);
+      padding: 4px 13px;
+      border-radius: 20px;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 11px;
+      letter-spacing: 1px;
+      color: var(--txt2)
+    }
+
+    .badge b {
+      color: var(--c)
+    }
+
+    .clr-btn {
+      border: 1px solid rgba(255, 61, 90, .35);
+      background: rgba(255, 61, 90, .08);
+      color: #ff8099;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      padding: 4px 13px;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: .2s
+    }
+
+    .clr-btn:hover {
+      background: rgba(255, 61, 90, .2);
+      color: var(--red)
+    }
+
+    .back-btn {
+      border: 1px solid var(--cborder);
+      background: rgba(0, 212, 255, .07);
+      color: var(--txt2);
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      padding: 4px 13px;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: .2s;
+      display: flex;
+      align-items: center;
+      gap: 5px
+    }
+
+    .back-btn:hover {
+      background: var(--cglow);
+      color: var(--c);
+      border-color: var(--c)
+    }
+
+    /* ───── VIEW WRAPPER ───── */
+    .view {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden
+    }
+
+    /* ───── WELCOME ───── */
+    .welcome {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      gap: 18px;
+      overflow-y: auto
+    }
+
+    .globe-wrap {
+      position: relative;
+      width: 90px;
+      height: 90px;
+      animation: fl 4s ease-in-out infinite
+    }
+
+    @keyframes fl {
+
+      0%,
+      100% {
+        transform: translateY(0)
+      }
+
+      50% {
+        transform: translateY(-9px)
+      }
+    }
+
+    .globe-ring {
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      border: 2px solid var(--cborder);
+      box-shadow: 0 0 28px var(--cglow), inset 0 0 28px var(--cglow);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      background: var(--bg1)
+    }
+
+    .globe-dot {
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      background: var(--c);
+      border-radius: 50%;
+      top: 4px;
+      left: 50%;
+      transform: translateX(-50%);
+      box-shadow: 0 0 8px var(--c);
+      animation: gd 2s linear infinite
+    }
+
+    @keyframes gd {
+      0% {
+        top: 4px
+      }
+
+      50% {
+        top: auto;
+        bottom: 4px
+      }
+
+      100% {
+        top: 4px
+      }
+    }
+
+    .ws {
+      font-family: 'Rajdhani', sans-serif;
+      letter-spacing: 2px;
+      font-size: 12px;
+      color: var(--txt2);
+      text-transform: uppercase
+    }
+
+    .ws b {
+      color: var(--c)
+    }
+
+    .wt {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      color: var(--txt);
+      text-transform: uppercase;
+      text-align: center
+    }
+
+    .wd {
+      font-size: 13px;
+      color: var(--txt2);
+      text-align: center;
+      max-width: 340px;
+      line-height: 1.6
+    }
+
+    .agrid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      width: 100%;
+      max-width: 460px
+    }
+
+    .acard {
+      background: var(--card);
+      border: 1px solid var(--cborder);
+      border-radius: 14px;
+      padding: 16px 14px;
+      cursor: pointer;
+      transition: .25s;
+      display: flex;
+      align-items: center;
+      gap: 12px
+    }
+
+    .acard:hover {
+      background: var(--cglow);
+      border-color: var(--c);
+      box-shadow: 0 0 18px var(--cglow);
+      transform: translateY(-2px)
+    }
+
+    .aicon {
+      font-size: 26px
+    }
+
+    .albl {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      color: var(--txt);
+      text-transform: uppercase
+    }
+
+    .adsc {
+      font-size: 11px;
+      color: var(--txt2);
+      margin-top: 2px
+    }
+
+    /* ───── CHAT ───── */
+    .chat-scroll {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px
+    }
+
+    .msg {
+      display: flex;
+      gap: 9px;
+      animation: min .28s ease-out;
+      align-items: flex-start
+    }
+
+    .msg.user {
+      flex-direction: row-reverse
+    }
+
+    @keyframes min {
+      from {
+        opacity: 0;
+        transform: translateY(7px)
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0)
+      }
+    }
+
+    .av {
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      overflow: hidden;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      background: var(--bg3);
+      border: 1px solid var(--cborder);
+      margin-top: 2px
+    }
+
+    .av img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover
+    }
+
+    /* bot bubble: wide, fixed max-width */
+    .msg.bot .bbl-wrap {
+      max-width: 72%;
+      display: flex;
+      flex-direction: column
+    }
+
+    /* user bubble: compact, auto width, never full-width */
+    .msg.user .bbl-wrap {
+      max-width: 55%;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end
+    }
+
+    .bbl {
+      padding: 11px 16px;
+      border-radius: 14px;
+      font-size: 14px;
+      line-height: 1.62;
+      white-space: pre-wrap;
+      word-break: break-word;
+      display: inline-block
+    }
+
+    .msg.bot .bbl {
+      background: var(--card);
+      border: 1px solid var(--cborder);
+      color: var(--txt);
+      border-top-left-radius: 3px;
+      box-shadow: 0 2px 14px var(--cglow);
+      width: 100%
+    }
+
+    .msg.user .bbl {
+      background: linear-gradient(135deg, #004a78, #0077bb);
+      border: 1px solid rgba(0, 150, 220, .5);
+      color: #fff;
+      border-top-right-radius: 3px;
+      width: auto;
+      text-align: left
+    }
+
+    .mt {
+      font-size: 10px;
+      color: var(--txt3);
+      margin-top: 4px
+    }
+
+    .msg.user .mt {
+      text-align: right
+    }
+
+    .typing {
+      display: flex;
+      gap: 9px;
+      align-items: flex-start;
+      margin-top: 2px
+    }
+
+    .typing-bbl {
+      background: var(--card);
+      border: 1px solid var(--cborder);
+      border-top-left-radius: 3px;
+      border-radius: 14px;
+      padding: 13px 16px;
+      display: flex;
+      gap: 5px;
+      box-shadow: 0 2px 14px var(--cglow)
+    }
+
+    .td {
+      width: 8px;
+      height: 8px;
+      background: var(--c);
+      border-radius: 50%;
+      animation: td 1.4s infinite
+    }
+
+    .td:nth-child(2) {
+      animation-delay: .2s
+    }
+
+    .td:nth-child(3) {
+      animation-delay: .4s
+    }
+
+    @keyframes td {
+
+      0%,
+      60%,
+      100% {
+        transform: translateY(0);
+        opacity: .4
+      }
+
+      30% {
+        transform: translateY(-8px);
+        opacity: 1
+      }
+    }
+
+    /* chips */
+    .chips {
+      padding: 6px 24px 10px;
+      display: flex;
+      gap: 7px;
+      flex-wrap: wrap;
+      flex-shrink: 0
+    }
+
+    .chip {
+      padding: 6px 15px;
+      background: var(--card);
+      border: 1px solid var(--cborder);
+      border-radius: 20px;
+      font-size: 12px;
+      color: var(--txt2);
+      cursor: pointer;
+      transition: .2s;
+      font-family: 'Rajdhani', sans-serif;
+      letter-spacing: .5px;
+      font-weight: 500
+    }
+
+    .chip:hover {
+      background: var(--cglow);
+      color: var(--c);
+      border-color: var(--c)
+    }
+
+    /* input */
+    .ibar {
+      padding: 12px 24px 20px;
+      background: var(--glass);
+      border-top: 1px solid var(--cborder);
+      backdrop-filter: blur(10px);
+      flex-shrink: 0
+    }
+
+    .iwrap {
+      display: flex;
+      gap: 10px;
+      align-items: flex-end;
+      background: var(--bg2);
+      border: 1px solid var(--cborder);
+      border-radius: 26px;
+      padding: 8px 8px 8px 20px;
+      transition: .3s;
+      min-height: 56px
+    }
+
+    .iwrap:focus-within {
+      border-color: var(--c);
+      box-shadow: 0 0 14px var(--cglow)
+    }
+
+    .inp {
+      flex: 1;
+      border: none;
+      outline: none;
+      background: transparent;
+      font-size: 15px;
+      color: var(--txt);
+      font-family: 'Exo 2', sans-serif;
+      resize: none;
+      max-height: 130px;
+      min-height: 22px;
+      padding: 0;
+      line-height: 1.5;
+      align-self: center
+    }
+
+    .inp::placeholder {
+      color: var(--txt3)
+    }
+
+    .sbtn {
+      width: 40px;
+      height: 40px;
+      min-width: 40px;
+      background: linear-gradient(135deg, #0099bb, var(--c));
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      color: #000;
+      transition: .3s
+    }
+
+    .sbtn:hover {
+      transform: scale(1.1);
+      box-shadow: 0 0 16px rgba(0, 212, 255, .5)
+    }
+
+    .sbtn:active {
+      transform: scale(.94)
+    }
+
+    /* ───── PANEL VIEWS ───── */
+    .panel {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px 28px
+    }
+
+    .ptitle {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: 3px;
+      color: var(--c);
+      text-transform: uppercase;
+      margin-bottom: 20px;
+      border-bottom: 1px solid var(--cborder);
+      padding-bottom: 10px
+    }
+
+    /* history */
+    .hi {
+      background: var(--card);
+      border: 1px solid var(--cborder);
+      border-radius: 11px;
+      padding: 13px 16px;
+      margin-bottom: 9px;
+      cursor: pointer;
+      transition: .2s
+    }
+
+    .hi:hover {
+      border-color: var(--c);
+      background: var(--cglow)
+    }
+
+    .hi-q {
+      font-size: 13px;
+      color: var(--txt);
+      font-weight: 500
+    }
+
+    .hi-meta {
+      font-size: 10px;
+      color: var(--txt3);
+      margin-top: 3px;
+      font-family: 'Rajdhani', sans-serif;
+      letter-spacing: .5px
+    }
+
+    .hi-prev {
+      font-size: 12px;
+      color: var(--txt2);
+      margin-top: 6px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis
+    }
+
+    .hi-del {
+      float: right;
+      background: rgba(255, 61, 90, .12);
+      border: 1px solid rgba(255, 61, 90, .3);
+      color: #ff9099;
+      font-size: 10px;
+      padding: 2px 9px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 600;
+      transition: .2s;
+      margin-left: 8px
+    }
+
+    .hi-del:hover {
+      background: rgba(255, 61, 90, .28);
+      color: var(--red)
+    }
+
+    .hbk {
+      background: transparent;
+      border: 1px solid var(--cborder);
+      color: var(--txt2);
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 12px;
+      letter-spacing: 1px;
+      padding: 5px 14px;
+      border-radius: 7px;
+      cursor: pointer;
+      margin-bottom: 14px;
+      transition: .2s
+    }
+
+    .hbk:hover {
+      border-color: var(--c);
+      color: var(--c)
+    }
+
+    .hd-box {
+      background: var(--card);
+      border: 1px solid var(--cborder);
+      border-radius: 11px;
+      padding: 16px
+    }
+
+    .hd-msg {
+      margin-bottom: 12px
+    }
+
+    .hd-who {
+      font-size: 10px;
+      color: var(--txt3);
+      font-family: 'Rajdhani', sans-serif;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 4px
+    }
+
+    .hd-text {
+      font-size: 13px;
+      color: var(--txt);
+      background: var(--bg2);
+      padding: 9px 12px;
+      border-radius: 7px;
+      white-space: pre-wrap;
+      border: 1px solid var(--cborder)
+    }
+
+    .empty {
+      text-align: center;
+      padding: 50px 20px;
+      color: var(--txt3);
+      font-family: 'Rajdhani', sans-serif;
+      letter-spacing: 1px
+    }
+
+    .empty-i {
+      font-size: 42px;
+      margin-bottom: 10px
+    }
+
+    /* settings */
+    .sgrp {
+      margin-bottom: 24px
+    }
+
+    .sgrp-lbl {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 11px;
+      letter-spacing: 2px;
+      color: var(--txt3);
+      text-transform: uppercase;
+      margin-bottom: 10px;
+      font-weight: 600
+    }
+
+    .srow {
+      background: var(--card);
+      border: 1px solid var(--cborder);
+      border-radius: 11px;
+      padding: 15px 18px;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between
+    }
+
+    .srow-lbl {
+      font-size: 14px;
+      color: var(--txt);
+      font-weight: 500
+    }
+
+    .srow-sub {
+      font-size: 11px;
+      color: var(--txt2);
+      margin-top: 2px
+    }
+
+    .tog {
+      width: 42px;
+      height: 23px;
+      background: var(--txt3);
+      border-radius: 12px;
+      cursor: pointer;
+      position: relative;
+      transition: .3s;
+      border: none;
+      flex-shrink: 0
+    }
+
+    .tog.on {
+      background: var(--c);
+      box-shadow: 0 0 10px var(--cglow)
+    }
+
+    .tog::after {
+      content: '';
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 17px;
+      height: 17px;
+      background: #fff;
+      border-radius: 50%;
+      transition: .3s
+    }
+
+    .tog.on::after {
+      transform: translateX(19px)
+    }
+
+    .act-btn {
+      padding: 6px 16px;
+      border-radius: 8px;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: .2s;
+      border: 1px solid
+    }
+
+    .act-btn.cl {
+      background: rgba(255, 61, 90, .1);
+      border-color: rgba(255, 61, 90, .35);
+      color: #ff9099
+    }
+
+    .act-btn.cl:hover {
+      background: rgba(255, 61, 90, .22);
+      color: var(--red)
+    }
+
+    .logout-btn {
+      width: 100%;
+      padding: 14px;
+      background: rgba(255, 61, 90, .1);
+      border: 1px solid rgba(255, 61, 90, .35);
+      color: #ff9099;
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      border-radius: 11px;
+      cursor: pointer;
+      transition: .2s;
+      text-transform: uppercase
+    }
+
+    .logout-btn:hover {
+      background: rgba(255, 61, 90, .22);
+      color: var(--red);
+      box-shadow: 0 0 16px rgba(255, 61, 90, .2)
+    }
+  </style>
+</head>
+
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+    const { useState, useEffect, useRef } = React;
+
+    const LOGO = "data:image/png;base64,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";
+
+    const KWMAP = { "track": "track_my_order.txt", "tracking": "track_my_order.txt", "order status": "order_status_check.txt", "shipment status": "order_status_check.txt", "where is my order": "current_order_location.txt", "order update": "shipment_update_request.txt", "shipment tracking": "track_my_order.txt", "track shipment": "track_my_order.txt", "order info": "track_my_order.txt", "tracking details": "tracking_details_availability.txt", "order id": "track_order_using_order_id.txt", "track order id": "track_order_using_order_id.txt", "tracking using id": "track_order_using_order_id.txt", "shipment id": "track_order_using_order_id.txt", "order reference": "order_details_view.txt", "order number": "track_order_using_order_id.txt", "track by id": "track_order_using_order_id.txt", "shipment reference": "track_order_using_order_id.txt", "order tracking id": "track_order_using_order_id.txt", "status by id": "track_order_using_order_id.txt", "current status": "order_status_check.txt", "order progress": "order_status_check.txt", "status check": "order_status_check.txt", "shipment progress": "order_in_transit_status.txt", "delivery status": "order_delivery_confirmation.txt", "order condition": "order_safety_status.txt", "status inquiry": "order_status_check.txt", "shipment location": "current_order_location.txt", "where is shipment": "shipment_current_location.txt", "current location": "current_order_location.txt", "track shipment location": "shipment_current_location.txt", "order location": "current_order_location.txt", "transport location": "shipment_current_location.txt", "shipment movement": "shipment_current_location.txt", "delivery location": "current_order_location.txt", "location update": "shipment_current_location.txt", "exact location": "shipment_current_location.txt", "dispatch": "order_dispatch_status.txt", "dispatched": "order_dispatch_status.txt", "order dispatched": "order_dispatch_status.txt", "shipment dispatched": "order_dispatch_status.txt", "dispatch status": "order_dispatch_status.txt", "order processing": "order_processing_time.txt", "shipment start": "order_dispatch_status.txt", "dispatch confirmation": "order_dispatch_status.txt", "vehicle assigned": "order_dispatch_status.txt", "order sent": "order_dispatch_status.txt", "delay": "order_delay_check.txt", "delayed order": "order_delay_check.txt", "shipment delay": "order_delay_check.txt", "is my order late": "order_delay_check.txt", "delivery delay": "order_delay_check.txt", "transit delay": "order_delay_check.txt", "delay reason": "reason_for_order_delay.txt", "order slow": "order_delay_check.txt", "shipment late": "order_delay_check.txt", "delay status": "order_delay_check.txt", "delivery time": "expected_delivery_time.txt", "expected delivery": "expected_delivery_time.txt", "eta": "delivery_eta_information.txt", "delivery date": "expected_delivery_time.txt", "shipment eta": "delivery_eta_information.txt", "arrival time": "expected_delivery_time.txt", "when will i receive": "expected_delivery_time.txt", "estimated delivery": "expected_delivery_time.txt", "transit time": "expected_delivery_time.txt", "delivery schedule": "expected_delivery_time.txt", "why delayed": "reason_for_order_delay.txt", "shipment delay reason": "reason_for_order_delay.txt", "order delay cause": "reason_for_order_delay.txt", "late delivery reason": "reason_for_order_delay.txt", "delay explanation": "reason_for_order_delay.txt", "transit issue": "reason_for_order_delay.txt", "delay cause": "reason_for_order_delay.txt", "shipment problem": "order_issue_check.txt", "order issue": "order_issue_check.txt", "border crossed": "shipment_border_crossing_status.txt", "state border": "shipment_border_crossing_status.txt", "crossed border": "shipment_border_crossing_status.txt", "shipment border status": "shipment_border_crossing_status.txt", "interstate shipment": "shipment_border_crossing_status.txt", "border checkpoint": "shipment_border_crossing_status.txt", "state crossing": "interstate_operations.txt", "route status": "shipment_border_crossing_status.txt", "border update": "shipment_border_crossing_status.txt", "shipment crossing": "shipment_border_crossing_status.txt", "shipment moving": "order_in_transit_status.txt", "shipment stopped": "shipment_moving_or_stopped.txt", "order movement": "order_in_transit_status.txt", "transit status": "order_in_transit_status.txt", "shipment activity": "shipment_moving_or_stopped.txt", "is it moving": "shipment_moving_or_stopped.txt", "stopped shipment": "shipment_moving_or_stopped.txt", "transport status": "shipment_moving_or_stopped.txt", "movement check": "shipment_moving_or_stopped.txt", "shipment halt": "shipment_moving_or_stopped.txt", "truck": "assigned_truck_details.txt", "vehicle": "assigned_truck_details.txt", "assigned truck": "assigned_truck_details.txt", "shipment truck": "assigned_truck_details.txt", "transport vehicle": "assigned_truck_details.txt", "order truck": "assigned_truck_details.txt", "refrigerated truck": "refrigerated_truck_explanation.txt", "vehicle type": "assigned_truck_details.txt", "delivery truck": "assigned_truck_details.txt", "truck details": "assigned_truck_details.txt", "in transit": "order_in_transit_status.txt", "shipment transit": "order_in_transit_status.txt", "order transit": "order_in_transit_status.txt", "delivery in progress": "order_in_transit_status.txt", "transport active": "order_in_transit_status.txt", "transit check": "order_in_transit_status.txt", "tracking info": "tracking_details_availability.txt", "when tracking available": "tracking_details_availability.txt", "shipment tracking start": "tracking_start_time.txt", "order tracking time": "tracking_details_availability.txt", "tracking update": "shipment_update_request.txt", "tracking availability": "real_time_truck_tracking.txt", "tracking confirmation": "tracking_details_availability.txt", "shipment tracking info": "tracking_details_availability.txt", "order tracking details": "tracking_details_availability.txt", "destination city": "destination_city_arrival.txt", "reached destination": "destination_city_arrival.txt", "shipment arrived": "destination_city_arrival.txt", "order arrival": "destination_city_arrival.txt", "city arrival": "destination_city_arrival.txt", "delivery city": "destination_city_arrival.txt", "destination reached": "destination_city_arrival.txt", "shipment destination": "destination_city_arrival.txt", "arrival status": "destination_city_arrival.txt", "delivered": "order_delivery_confirmation.txt", "order delivered": "order_delivery_confirmation.txt", "shipment delivered": "order_delivery_confirmation.txt", "delivery confirmation": "order_delivery_confirmation.txt", "has it arrived": "order_delivery_confirmation.txt", "delivery complete": "order_delivery_confirmation.txt", "order completion": "order_delivery_confirmation.txt", "shipment received": "order_delivery_confirmation.txt", "delivery check": "order_delivery_confirmation.txt", "order details": "order_details_view.txt", "show order info": "order_details_view.txt", "order information": "order_details_view.txt", "shipment details": "order_details_view.txt", "order summary": "order_details_view.txt", "order data": "order_details_view.txt", "shipment info": "shipment_update_request.txt", "view order": "order_details_view.txt", "order record": "order_details_view.txt", "route": "shipment_route_information.txt", "shipment route": "shipment_route_information.txt", "delivery route": "shipment_route_information.txt", "transport route": "shipment_route_information.txt", "order route": "shipment_route_information.txt", "route taken": "shipment_route_information.txt", "shipment path": "shipment_route_information.txt", "transit route": "shipment_route_information.txt", "logistics route": "shipment_route_information.txt", "route information": "shipment_route_information.txt", "weather": "weather_impact_on_order.txt", "weather delay": "weather_impact_on_order.txt", "climate impact": "weather_impact_on_order.txt", "rain delay": "weather_impact_on_order.txt", "weather affected": "weather_impact_on_order.txt", "shipment weather": "weather_impact_on_order.txt", "transit weather": "weather_impact_on_order.txt", "weather issue": "weather_impact_on_order.txt", "environmental impact": "climate_variation_handling.txt", "weather condition": "weather_impact_on_order.txt", "transit location": "current_order_location.txt", "order whereabouts": "current_order_location.txt", "location status": "current_order_location.txt", "shipment position": "current_order_location.txt", "tracking location": "current_order_location.txt", "temperature": "temperature_maintenance_status.txt", "temperature maintained": "temperature_maintenance_status.txt", "cold chain": "frozen_goods_transport.txt", "temperature compliance": "temperature_maintenance_status.txt", "shipment temperature": "temperature_maintenance_status.txt", "order temperature": "temperature_maintenance_status.txt", "temperature control": "seafood_temperature_standards.txt", "spoilage prevention": "spoilage_prevention_measures.txt", "cold storage": "temperature_maintenance_status.txt", "temperature status": "temperature_maintenance_status.txt", "order safety": "order_safety_status.txt", "is my order safe": "order_safety_status.txt", "shipment safety": "order_safety_status.txt", "cargo safety": "order_safety_status.txt", "transport safety": "order_safety_status.txt", "shipment condition": "order_safety_status.txt", "safety check": "order_safety_status.txt", "delivery safety": "order_safety_status.txt", "quality safety": "order_safety_status.txt", "tracking not available": "tracking_not_available_reason.txt", "no tracking": "tracking_not_available_reason.txt", "tracking unavailable": "tracking_temporarily_down.txt", "tracking issue": "tracking_information_unavailable.txt", "tracking missing": "tracking_not_available_reason.txt", "shipment tracking error": "order_tracking_not_working.txt", "order tracking problem": "tracking_not_available_reason.txt", "tracking delay": "tracking_temporarily_down.txt", "tracking pending": "tracking_temporarily_down.txt", "tracking status": "tracking_not_available_reason.txt", "shipment update": "shipment_update_request.txt", "shipment status update": "shipment_update_request.txt", "latest update": "shipment_update_request.txt", "delivery update": "shipment_update_request.txt", "order progress update": "shipment_update_request.txt", "update request": "shipment_update_request.txt", "status refresh": "shipment_update_request.txt", "delivery eta": "delivery_eta_information.txt", "expected arrival": "delivery_eta_information.txt", "delivery estimate": "delivery_eta_information.txt", "arrival estimate": "delivery_eta_information.txt", "delivery timing": "delivery_eta_information.txt", "eta check": "delivery_eta_information.txt", "order eta": "delivery_eta_information.txt", "transit eta": "delivery_eta_information.txt", "shipment issue": "order_issue_check.txt", "problem with order": "order_issue_check.txt", "delivery problem": "order_issue_check.txt", "order problem": "order_issue_check.txt", "issue check": "order_issue_check.txt", "order concern": "order_issue_check.txt", "operational issue": "order_issue_check.txt", "order started": "order_start_status.txt", "shipment started": "order_start_status.txt", "dispatch started": "order_start_status.txt", "order initiation": "order_start_status.txt", "has order begun": "order_start_status.txt", "shipment initiation": "order_start_status.txt", "transport started": "order_start_status.txt", "order launch": "order_start_status.txt", "dispatch check": "order_start_status.txt", "start status": "order_start_status.txt", "on schedule": "shipment_on_schedule_status.txt", "shipment schedule": "shipment_on_schedule_status.txt", "order schedule": "shipment_on_schedule_status.txt", "delivery on time": "shipment_on_schedule_status.txt", "schedule status": "shipment_on_schedule_status.txt", "on time delivery": "shipment_on_schedule_status.txt", "shipment timing": "shipment_on_schedule_status.txt", "schedule check": "shipment_on_schedule_status.txt", "order timing": "shipment_on_schedule_status.txt", "transit schedule": "shipment_on_schedule_status.txt", "confirm order status": "confirm_order_status.txt", "order confirmation": "order_confirmation_timeline.txt", "status confirmation": "confirm_order_status.txt", "shipment confirmation": "order_confirmation_timeline.txt", "order verify": "confirm_order_status.txt", "confirm shipment": "confirm_order_status.txt", "order status check": "confirm_order_status.txt", "verification status": "confirm_order_status.txt", "order state": "confirm_order_status.txt", "confirm tracking": "confirm_order_status.txt", "tracking not working": "order_tracking_not_working.txt", "tracking error": "tracking_information_unavailable.txt", "tracking problem": "order_tracking_not_working.txt", "order tracking issue": "order_tracking_not_working.txt", "tracking failed": "order_tracking_not_working.txt", "tracking down": "tracking_temporarily_down.txt", "tracking bug": "order_tracking_not_working.txt", "data not available": "order_data_not_available.txt", "status unavailable": "order_data_not_available.txt", "order data missing": "missing_data_guidance.txt", "tracking data unavailable": "order_data_not_available.txt", "no data shown": "order_data_not_available.txt", "order info missing": "information_temporarily_unavailable.txt", "shipment data pending": "order_data_not_available.txt", "data pending": "order_data_not_available.txt", "unavailable status": "information_temporarily_unavailable.txt", "missing information": "missing_data_guidance.txt", "place order": "place_new_order.txt", "order request": "place_new_order.txt", "book shipment": "book_shipment_request.txt", "new order": "place_new_order.txt", "place shipment": "place_new_order.txt", "order process": "place_new_order.txt", "shipping request": "place_new_order.txt", "transport order": "place_new_order.txt", "booking request": "book_shipment_request.txt", "start order": "place_new_order.txt", "how to place order": "how_to_place_order.txt", "order steps": "how_to_place_order.txt", "booking process": "how_to_place_order.txt", "shipment booking": "book_shipment_request.txt", "place order process": "how_to_place_order.txt", "how to book shipment": "how_to_place_order.txt", "order procedure": "how_to_place_order.txt", "transport booking": "book_shipment_request.txt", "order guidance": "order_information_help.txt", "shipping steps": "how_to_place_order.txt", "transport seafood": "seafood_transport_request.txt", "seafood shipment": "seafood_transport_request.txt", "seafood transport": "seafood_transport_request.txt", "frozen transport": "frozen_goods_transport.txt", "perishable transport": "perishable_goods_handling.txt", "cold chain shipment": "seafood_transport_request.txt", "seafood logistics": "seafood_transport_request.txt", "ship seafood": "seafood_transport_request.txt", "seafood delivery": "seafood_transport_request.txt", "seafood order": "seafood_transport_request.txt", "book transport": "book_shipment_request.txt", "freight booking": "book_shipment_request.txt", "logistics booking": "book_shipment_request.txt", "shipment reservation": "book_shipment_request.txt", "shipping booking": "book_shipment_request.txt", "book delivery": "book_shipment_request.txt", "frozen goods": "frozen_goods_transport.txt", "frozen shipment": "frozen_goods_transport.txt", "cold storage transport": "cold_chain_logistics_explanation.txt", "frozen delivery": "frozen_goods_transport.txt", "temperature controlled shipment": "frozen_goods_transport.txt", "frozen logistics": "frozen_goods_transport.txt", "ship frozen goods": "frozen_goods_transport.txt", "frozen cargo": "frozen_goods_transport.txt", "processing time": "order_processing_time.txt", "order confirmation time": "order_processing_time.txt", "how long processing": "order_processing_time.txt", "shipment processing": "order_processing_time.txt", "order handling time": "order_processing_time.txt", "booking processing": "order_processing_time.txt", "processing duration": "order_processing_time.txt", "order review": "order_processing_time.txt", "processing status": "order_processing_time.txt", "confirmation time": "order_confirmation_timeline.txt", "when confirmed": "order_confirmation_timeline.txt", "booking confirmation": "order_confirmation_timeline.txt", "order approved": "order_confirmation_timeline.txt", "confirmation status": "order_confirmation_timeline.txt", "order validation": "order_confirmation_timeline.txt", "confirmation process": "order_confirmation_timeline.txt", "order accepted": "order_confirmation_timeline.txt", "bulk order": "bulk_order_request.txt", "bulk shipment": "bulk_order_request.txt", "large order": "bulk_order_request.txt", "high volume shipment": "bulk_order_request.txt", "bulk transport": "bulk_order_request.txt", "large quantity order": "bulk_order_request.txt", "bulk logistics": "bulk_order_request.txt", "bulk booking": "bulk_order_request.txt", "mass shipment": "bulk_order_request.txt", "volume order": "bulk_order_request.txt", "tracking start": "tracking_start_time.txt", "when tracking begins": "tracking_start_time.txt", "tracking activation": "tracking_start_time.txt", "tracking available time": "tracking_start_time.txt", "order tracking start": "tracking_start_time.txt", "tracking timeline": "tracking_start_time.txt", "tracking readiness": "tracking_start_time.txt", "tracking enable": "tracking_start_time.txt", "after order placed": "post_order_process_flow.txt", "order process flow": "post_order_process_flow.txt", "what next after order": "post_order_process_flow.txt", "post order steps": "post_order_process_flow.txt", "order lifecycle": "post_order_process_flow.txt", "shipment workflow": "post_order_process_flow.txt", "order handling": "post_order_process_flow.txt", "next steps order": "post_order_process_flow.txt", "booking flow": "post_order_process_flow.txt", "order execution": "post_order_process_flow.txt", "about company": "company_overview.txt", "company details": "company_overview.txt", "company overview": "company_overview.txt", "who are you": "company_overview.txt", "about your company": "company_overview.txt", "company information": "company_overview.txt", "business overview": "company_overview.txt", "organization details": "company_overview.txt", "company background": "family_business_background.txt", "firm profile": "company_overview.txt", "what do you do": "company_services_description.txt", "company services": "company_services_description.txt", "business activities": "company_services_description.txt", "logistics services": "logistics_company_confirmation.txt", "transport services": "logistics_company_confirmation.txt", "company work": "company_services_description.txt", "service overview": "company_services_description.txt", "operations description": "company_services_description.txt", "what services": "company_services_description.txt", "business function": "company_services_description.txt", "customers": "customer_base_information.txt", "who are your customers": "customer_base_information.txt", "client base": "customer_base_information.txt", "types of customers": "customer_base_information.txt", "business clients": "customer_base_information.txt", "industries served": "industries_served.txt", "customer profile": "customer_base_information.txt", "clientele": "customer_base_information.txt", "service users": "customer_base_information.txt", "target customers": "customer_base_information.txt", "where operate": "operational_locations.txt", "service areas": "operational_locations.txt", "operating regions": "operational_locations.txt", "coverage area": "operational_locations.txt", "locations served": "operational_locations.txt", "operational area": "operational_locations.txt", "geographic coverage": "operational_locations.txt", "service locations": "operational_locations.txt", "regions covered": "operational_locations.txt", "operational zones": "operational_locations.txt", "how long in business": "company_experience_history.txt", "company experience": "company_experience_history.txt", "years of operation": "company_experience_history.txt", "business history": "company_experience_history.txt", "experience level": "company_experience_history.txt", "operational history": "company_experience_history.txt", "company age": "company_experience_history.txt", "industry experience": "seafood_logistics_experience.txt", "years active": "company_experience_history.txt", "business background": "company_experience_history.txt", "logistics company": "logistics_company_confirmation.txt", "are you logistics": "logistics_company_confirmation.txt", "transport company": "logistics_company_confirmation.txt", "logistics provider": "logistics_company_confirmation.txt", "shipping company": "logistics_company_confirmation.txt", "freight company": "logistics_company_confirmation.txt", "logistics firm": "logistics_company_confirmation.txt", "supply chain company": "logistics_company_confirmation.txt", "interstate": "interstate_operations.txt", "across states": "interstate_operations.txt", "multi state operations": "interstate_operations.txt", "inter state transport": "interstate_operations.txt", "state to state delivery": "interstate_operations.txt", "cross state shipment": "interstate_operations.txt", "interstate logistics": "interstate_operations.txt", "border transport": "interstate_operations.txt", "multi region delivery": "interstate_operations.txt", "sectors served": "industries_served.txt", "business industries": "industries_served.txt", "industry clients": "industries_served.txt", "market segments": "industries_served.txt", "served industries": "industries_served.txt", "customer industries": "industries_served.txt", "industrial clients": "industries_served.txt", "service sectors": "industries_served.txt", "business segments": "industries_served.txt", "export company": "export_operations_support.txt", "export services": "export_operations_support.txt", "export logistics": "export_operations_support.txt", "do you export": "export_operations_support.txt", "export transport": "export_operations_support.txt", "export shipment": "export_operations_support.txt", "international trade support": "export_operations_support.txt", "export operations": "export_operations_support.txt", "export handling": "export_operations_support.txt", "export compliance": "export_operations_support.txt", "what makes you different": "company_unique_strengths.txt", "unique": "company_unique_strengths.txt", "why choose you": "company_unique_strengths.txt", "differentiation": "company_unique_strengths.txt", "competitive advantage": "company_unique_strengths.txt", "company strengths": "company_unique_strengths.txt", "what sets you apart": "company_unique_strengths.txt", "service quality": "company_unique_strengths.txt", "reliability difference": "company_unique_strengths.txt", "trust factor": "why_choose_our_company.txt", "family business": "family_business_background.txt", "family owned": "family_business_background.txt", "is it family run": "family_business_background.txt", "business ownership": "family_business_background.txt", "ownership type": "family_business_background.txt", "business heritage": "family_business_background.txt", "company roots": "family_business_background.txt", "legacy business": "family_business_background.txt", "family enterprise": "family_business_background.txt", "perishable goods": "perishable_goods_handling.txt", "handle perishables": "perishable_goods_handling.txt", "cold chain goods": "perishable_goods_handling.txt", "temperature sensitive goods": "perishable_goods_handling.txt", "food transport": "perishable_goods_handling.txt", "perishables handling": "perishable_goods_handling.txt", "perishable logistics": "cold_chain_logistics_explanation.txt", "fresh goods transport": "perishable_goods_handling.txt", "quality sensitive cargo": "perishable_goods_handling.txt", "seafood logistics experience": "seafood_logistics_experience.txt", "seafood transport experience": "seafood_logistics_experience.txt", "fish logistics": "seafood_logistics_experience.txt", "seafood handling": "seafood_transport_process.txt", "cold chain experience": "seafood_logistics_experience.txt", "perishable logistics experience": "seafood_logistics_experience.txt", "seafood shipment expertise": "seafood_logistics_experience.txt", "food logistics background": "seafood_logistics_experience.txt", "seafood operations": "seafood_logistics_experience.txt", "reliable service": "service_reliability_explanation.txt", "service reliability": "service_reliability_explanation.txt", "how reliable": "service_reliability_explanation.txt", "trusted service": "service_reliability_explanation.txt", "dependable logistics": "service_reliability_explanation.txt", "reliability assurance": "service_reliability_explanation.txt", "service trust": "service_reliability_explanation.txt", "consistent delivery": "service_reliability_explanation.txt", "reliability level": "service_reliability_explanation.txt", "logistics reliability": "service_reliability_explanation.txt", "why trust you": "why_choose_our_company.txt", "trust company": "why_choose_our_company.txt", "company credibility": "why_choose_our_company.txt", "reliable partner": "why_choose_our_company.txt", "trustworthy service": "why_choose_our_company.txt", "customer trust": "why_choose_our_company.txt", "company integrity": "why_choose_our_company.txt", "service credibility": "why_choose_our_company.txt", "confidence in company": "why_choose_our_company.txt", "how transport seafood": "seafood_transport_process.txt", "seafood transportation": "seafood_transport_process.txt", "fish transport method": "seafood_transport_process.txt", "cold chain seafood": "frozen_and_wet_seafood_transport.txt", "seafood delivery process": "seafood_transport_process.txt", "seafood logistics process": "seafood_transport_process.txt", "temperature control seafood": "seafood_transport_process.txt", "seafood transit": "seafood_transport_process.txt", "seafood shipping": "seafood_transport_process.txt", "freshness maintained": "freshness_maintenance_method.txt", "keep seafood fresh": "freshness_maintenance_method.txt", "freshness control": "freshness_maintenance_method.txt", "quality preservation": "freshness_maintenance_method.txt", "cold chain freshness": "freshness_maintenance_method.txt", "freshness handling": "freshness_maintenance_method.txt", "seafood freshness": "freshness_maintenance_method.txt", "maintain quality": "freshness_maintenance_method.txt", "freshness management": "freshness_maintenance_method.txt", "seafood temperature": "seafood_temperature_standards.txt", "transport temperature": "seafood_temperature_standards.txt", "cold chain temperature": "seafood_temperature_standards.txt", "seafood cooling": "seafood_temperature_standards.txt", "frozen temperature": "seafood_temperature_standards.txt", "wet seafood temperature": "seafood_temperature_standards.txt", "temperature range seafood": "seafood_temperature_standards.txt", "refrigeration level": "seafood_temperature_standards.txt", "storage temperature": "seafood_temperature_standards.txt", "prevent spoilage": "spoilage_prevention_measures.txt", "avoid spoilage": "spoilage_prevention_measures.txt", "food safety": "food_safety_assurance.txt", "quality protection": "spoilage_prevention_measures.txt", "cold chain prevention": "spoilage_prevention_measures.txt", "spoilage control": "spoilage_prevention_measures.txt", "freshness protection": "spoilage_prevention_measures.txt", "perishable safety": "spoilage_prevention_measures.txt", "spoilage risk": "spoilage_prevention_measures.txt", "temperature change": "temperature_deviation_handling.txt", "temperature deviation": "temperature_deviation_handling.txt", "temp fluctuation": "temperature_deviation_handling.txt", "cold chain deviation": "temperature_deviation_handling.txt", "temperature alert": "temperature_deviation_handling.txt", "temperature issue": "temperature_deviation_handling.txt", "cooling failure": "temperature_deviation_handling.txt", "temp variation": "temperature_deviation_handling.txt", "refrigeration change": "temperature_deviation_handling.txt", "temperature problem": "temperature_deviation_handling.txt", "transport duration": "seafood_transit_duration.txt", "how long transport": "seafood_transit_duration.txt", "seafood transit time": "seafood_transit_duration.txt", "delivery duration": "seafood_transit_duration.txt", "shipping time seafood": "seafood_transit_duration.txt", "transit limit": "seafood_transit_duration.txt", "travel time seafood": "seafood_transit_duration.txt", "transport hours": "seafood_transit_duration.txt", "seafood delivery time": "seafood_transit_duration.txt", "logistics duration": "seafood_transit_duration.txt", "monitoring transit": "shipment_temperature_monitoring.txt", "seafood monitoring": "shipment_temperature_monitoring.txt", "transit monitoring": "shipment_temperature_monitoring.txt", "temperature monitoring": "shipment_temperature_monitoring.txt", "shipment monitoring": "shipment_temperature_monitoring.txt", "cold chain monitoring": "continuous_temperature_monitoring.txt", "transport monitoring": "real_time_truck_tracking.txt", "real time monitoring": "shipment_temperature_monitoring.txt", "seafood tracking": "shipment_temperature_monitoring.txt", "quality monitoring": "shipment_temperature_monitoring.txt", "cold chain logistics": "cold_chain_logistics_explanation.txt", "what is cold chain": "cold_chain_logistics_explanation.txt", "cold chain meaning": "cold_chain_logistics_explanation.txt", "temperature controlled logistics": "cold_chain_logistics_explanation.txt", "refrigerated transport": "refrigerated_truck_explanation.txt", "cold chain process": "cold_chain_logistics_explanation.txt", "cold chain system": "cold_chain_logistics_explanation.txt", "cold logistics": "temperature_controlled_trucks.txt", "long distance transport": "long_distance_seafood_transport.txt", "long haul logistics": "long_distance_seafood_transport.txt", "intercity transport": "long_distance_seafood_transport.txt", "long route handling": "long_distance_seafood_transport.txt", "extended transport": "long_distance_seafood_transport.txt", "cross country shipment": "long_distance_seafood_transport.txt", "long distance delivery": "long_distance_seafood_transport.txt", "logistics planning": "truck_selection_criteria.txt", "long haul shipment": "long_distance_seafood_transport.txt", "transport planning": "truck_selection_criteria.txt", "delay handling": "delay_handling_for_seafood.txt", "shipment delay handling": "delay_handling_for_seafood.txt", "what happens during delay": "delay_handling_for_seafood.txt", "delay management": "delay_handling_for_seafood.txt", "transport delay process": "delay_handling_for_seafood.txt", "delay response": "delay_handling_for_seafood.txt", "logistics delay": "delay_handling_for_seafood.txt", "delay impact": "delay_handling_for_seafood.txt", "shipment delay action": "delay_handling_for_seafood.txt", "delay protocol": "delay_handling_for_seafood.txt", "continuous temperature monitoring": "continuous_temperature_monitoring.txt", "real time temperature": "continuous_temperature_monitoring.txt", "temperature tracking": "continuous_temperature_monitoring.txt", "temperature sensor": "continuous_temperature_monitoring.txt", "monitoring frequency": "continuous_temperature_monitoring.txt", "temperature control system": "continuous_temperature_monitoring.txt", "temperature logs": "continuous_temperature_monitoring.txt", "refrigeration monitoring": "continuous_temperature_monitoring.txt", "temp tracking": "continuous_temperature_monitoring.txt", "climate variation": "climate_variation_handling.txt", "weather variation": "climate_variation_handling.txt", "climate handling": "climate_variation_handling.txt", "heat management": "climate_variation_handling.txt", "humidity impact": "climate_variation_handling.txt", "weather handling": "climate_variation_handling.txt", "climate control logistics": "climate_variation_handling.txt", "regional climate": "climate_variation_handling.txt", "transport climate": "climate_variation_handling.txt", "quality affected": "seafood_quality_issue_handling.txt", "deteriorated quality": "seafood_quality_issue_handling.txt", "seafood quality issue": "seafood_quality_issue_handling.txt", "quality problem": "seafood_quality_issue_handling.txt", "spoilage issue": "seafood_quality_issue_handling.txt", "damaged goods": "seafood_quality_issue_handling.txt", "quality complaint": "seafood_quality_issue_handling.txt", "product quality concern": "seafood_quality_issue_handling.txt", "shipment quality": "seafood_quality_issue_handling.txt", "quality deviation": "seafood_quality_issue_handling.txt", "ensure food safety": "food_safety_assurance.txt", "food safety compliance": "food_safety_compliance_process.txt", "hygiene standards": "truck_food_safety_standards.txt", "safety protocols": "food_safety_assurance.txt", "cold chain safety": "food_safety_assurance.txt", "food handling safety": "food_safety_assurance.txt", "transport hygiene": "food_safety_assurance.txt", "food safety norms": "food_safety_assurance.txt", "safety assurance": "food_safety_assurance.txt", "frozen and wet seafood": "frozen_and_wet_seafood_transport.txt", "wet seafood transport": "frozen_and_wet_seafood_transport.txt", "frozen seafood transport": "frozen_and_wet_seafood_transport.txt", "seafood types handled": "frozen_and_wet_seafood_transport.txt", "perishable types": "frozen_and_wet_seafood_transport.txt", "seafood handling types": "frozen_and_wet_seafood_transport.txt", "product categories": "frozen_and_wet_seafood_transport.txt", "seafood logistics types": "frozen_and_wet_seafood_transport.txt", "transport capability": "frozen_and_wet_seafood_transport.txt", "types of trucks": "truck_types_overview.txt", "truck types": "truck_types_overview.txt", "transport vehicles": "truck_types_overview.txt", "refrigerated trucks": "truck_types_overview.txt", "logistics trucks": "truck_types_overview.txt", "vehicle types": "truck_types_overview.txt", "delivery trucks": "truck_types_overview.txt", "cold chain trucks": "temperature_controlled_trucks.txt", "fleet vehicles": "truck_types_overview.txt", "truck categories": "truck_types_overview.txt", "reefer truck": "refrigerated_truck_explanation.txt", "cold truck": "refrigerated_truck_explanation.txt", "temperature controlled vehicle": "refrigerated_truck_explanation.txt", "freezer truck": "refrigerated_truck_explanation.txt", "chilled transport": "refrigerated_truck_explanation.txt", "cold chain vehicle": "refrigerated_truck_explanation.txt", "cooling truck": "temperature_controlled_trucks.txt", "cold storage truck": "refrigerated_truck_explanation.txt", "long distance truck": "long_distance_truck_usage.txt", "long haul truck": "long_distance_truck_usage.txt", "large truck": "long_distance_truck_usage.txt", "long route vehicle": "long_distance_truck_usage.txt", "intercity truck": "long_distance_truck_usage.txt", "interstate truck": "long_distance_truck_usage.txt", "bulk transport truck": "long_distance_truck_usage.txt", "freight truck": "long_distance_truck_usage.txt", "large refrigerated truck": "long_distance_truck_usage.txt", "transport capacity": "long_distance_truck_usage.txt", "small trucks": "small_truck_availability.txt", "mini trucks": "small_truck_availability.txt", "short distance trucks": "small_truck_availability.txt", "city delivery trucks": "small_truck_availability.txt", "small refrigerated truck": "small_truck_availability.txt", "low volume transport": "small_truck_availability.txt", "local delivery vehicle": "small_truck_availability.txt", "compact truck": "small_truck_availability.txt", "local transport": "small_truck_availability.txt", "small fleet": "small_truck_availability.txt", "truck selection": "truck_selection_criteria.txt", "vehicle assignment": "truck_selection_criteria.txt", "how truck chosen": "truck_selection_criteria.txt", "shipment truck selection": "truck_selection_criteria.txt", "vehicle allocation": "truck_selection_criteria.txt", "fleet assignment": "truck_selection_criteria.txt", "truck decision": "truck_selection_criteria.txt", "route planning": "truck_selection_criteria.txt", "temperature controlled trucks": "temperature_controlled_trucks.txt", "refrigerated vehicles": "temperature_controlled_trucks.txt", "temperature control transport": "temperature_controlled_trucks.txt", "chilled truck": "temperature_controlled_trucks.txt", "reefer vehicle": "temperature_controlled_trucks.txt", "controlled transport": "temperature_controlled_trucks.txt", "temperature regulation": "temperature_controlled_trucks.txt", "number of trucks": "fleet_size_information.txt", "fleet size": "fleet_size_information.txt", "how many trucks": "fleet_size_information.txt", "truck fleet": "fleet_size_information.txt", "logistics fleet": "fleet_size_information.txt", "transport fleet": "fleet_size_information.txt", "vehicle count": "fleet_size_information.txt", "fleet capacity": "fleet_size_information.txt", "trucks operated": "fleet_size_information.txt", "fleet management": "fleet_size_information.txt", "food safety trucks": "truck_food_safety_standards.txt", "food grade transport": "truck_food_safety_standards.txt", "compliant vehicles": "truck_food_safety_standards.txt", "food transport standards": "truck_food_safety_standards.txt", "safety compliant trucks": "truck_food_safety_standards.txt", "refrigerated truck standards": "truck_food_safety_standards.txt", "food safety logistics": "truck_food_safety_standards.txt", "hygiene transport": "truck_food_safety_standards.txt", "compliant fleet": "truck_food_safety_standards.txt", "truck breakdown": "truck_breakdown_handling.txt", "vehicle breakdown": "truck_breakdown_handling.txt", "transport failure": "truck_breakdown_handling.txt", "truck issue": "truck_breakdown_handling.txt", "breakdown handling": "truck_breakdown_handling.txt", "vehicle failure": "truck_breakdown_handling.txt", "shipment breakdown": "truck_breakdown_handling.txt", "logistics breakdown": "truck_breakdown_handling.txt", "emergency handling": "truck_breakdown_handling.txt", "transport incident": "truck_breakdown_handling.txt", "real time tracking": "real_time_truck_tracking.txt", "truck tracking": "real_time_truck_tracking.txt", "vehicle tracking": "real_time_truck_tracking.txt", "live tracking": "real_time_truck_tracking.txt", "gps tracking": "real_time_truck_tracking.txt", "shipment tracking system": "real_time_truck_tracking.txt", "fleet tracking": "real_time_truck_tracking.txt", "location tracking": "real_time_truck_tracking.txt", "fssai regulations": "fssai_compliance_details.txt", "food safety authority": "fssai_compliance_details.txt", "fssai compliance": "fssai_compliance_details.txt", "food safety rules": "fssai_compliance_details.txt", "fssai norms": "fssai_compliance_details.txt", "regulatory compliance": "fssai_compliance_details.txt", "food transport laws": "fssai_compliance_details.txt", "safety standards": "fssai_compliance_details.txt", "government food rules": "fssai_compliance_details.txt", "food compliance": "fssai_compliance_details.txt", "government compliant": "government_compliance_standards.txt", "legal compliance": "government_compliance_standards.txt", "shipment compliance": "government_compliance_standards.txt", "regulatory adherence": "government_compliance_standards.txt", "government norms": "government_compliance_standards.txt", "transport laws": "government_compliance_standards.txt", "lawful shipment": "government_compliance_standards.txt", "compliance check": "government_compliance_standards.txt", "legal transport": "government_compliance_standards.txt", "regulation compliance": "government_compliance_standards.txt", "ensure compliance": "food_safety_compliance_process.txt", "safety adherence": "food_safety_compliance_process.txt", "food handling compliance": "food_safety_compliance_process.txt", "regulatory safety": "food_safety_compliance_process.txt", "hygiene compliance": "food_safety_compliance_process.txt", "cold chain compliance": "cold_chain_regulatory_norms.txt", "compliance process": "food_safety_compliance_process.txt", "food standards": "food_safety_compliance_process.txt", "safety rules": "food_safety_compliance_process.txt", "certifications": "certifications_followed.txt", "compliance certificates": "certifications_followed.txt", "safety certifications": "certifications_followed.txt", "regulatory certificates": "certifications_followed.txt", "quality certifications": "certifications_followed.txt", "food safety certification": "certifications_followed.txt", "transport standards": "certifications_followed.txt", "certification compliance": "certifications_followed.txt", "industry standards": "certifications_followed.txt", "certified operations": "certifications_followed.txt", "seafood regulation": "seafood_transport_regulations.txt", "legally regulated": "seafood_transport_regulations.txt", "food transport law": "seafood_transport_regulations.txt", "seafood transport rules": "seafood_transport_regulations.txt", "legal requirements": "seafood_transport_regulations.txt", "regulatory control": "seafood_transport_regulations.txt", "food law": "seafood_transport_regulations.txt", "seafood compliance": "seafood_transport_regulations.txt", "transport regulation": "seafood_transport_regulations.txt", "safety laws": "seafood_transport_regulations.txt", "cold chain norms": "cold_chain_regulatory_norms.txt", "refrigeration standards": "cold_chain_regulatory_norms.txt", "temperature norms": "cold_chain_regulatory_norms.txt", "cold logistics rules": "cold_chain_regulatory_norms.txt", "cold chain guidelines": "cold_chain_regulatory_norms.txt", "chilled transport norms": "cold_chain_regulatory_norms.txt", "compliance cold chain": "cold_chain_regulatory_norms.txt", "refrigeration compliance": "cold_chain_regulatory_norms.txt", "food cold chain": "cold_chain_regulatory_norms.txt", "document verification": "document_verification_process.txt", "verify documents": "document_verification_process.txt", "dispatch documents": "document_verification_process.txt", "shipment paperwork": "document_verification_process.txt", "compliance documents": "document_verification_process.txt", "document check": "document_verification_process.txt", "pre dispatch verification": "document_verification_process.txt", "logistics documents": "document_verification_process.txt", "transport papers": "document_verification_process.txt", "legal documents": "document_verification_process.txt", "rules violated": "regulatory_violation_handling.txt", "compliance violation": "regulatory_violation_handling.txt", "regulation breach": "regulatory_violation_handling.txt", "violation handling": "regulatory_violation_handling.txt", "non compliance": "regulatory_violation_handling.txt", "rule breach": "regulatory_violation_handling.txt", "corrective action": "regulatory_violation_handling.txt", "compliance issue": "regulatory_violation_handling.txt", "regulatory violation": "regulatory_violation_handling.txt", "violation response": "regulatory_violation_handling.txt", "quality check": "quality_check_procedures.txt", "quality verification": "quality_check_procedures.txt", "pre delivery check": "quality_check_procedures.txt", "shipment quality check": "quality_check_procedures.txt", "food quality assurance": "quality_check_procedures.txt", "inspection before delivery": "quality_check_procedures.txt", "quality control": "quality_check_procedures.txt", "delivery inspection": "quality_check_procedures.txt", "product check": "quality_check_procedures.txt", "quality assurance": "quality_check_procedures.txt", "shipment audit": "shipment_audit_process.txt", "audits": "shipment_audit_process.txt", "logistics audit": "shipment_audit_process.txt", "compliance audit": "shipment_audit_process.txt", "quality audit": "shipment_audit_process.txt", "operational audit": "shipment_audit_process.txt", "audit process": "shipment_audit_process.txt", "inspection audit": "shipment_audit_process.txt", "shipment review": "shipment_audit_process.txt", "audit check": "shipment_audit_process.txt", "tracking not showing": "tracking_information_unavailable.txt", "cannot get tracking": "tracking_information_unavailable.txt", "no tracking details": "tracking_information_unavailable.txt", "order tracking missing": "tracking_information_unavailable.txt", "shipment tracking problem": "tracking_information_unavailable.txt", "tracking not visible": "tracking_information_unavailable.txt", "data not showing": "data_display_issue.txt", "no data visible": "data_display_issue.txt", "missing data": "data_display_issue.txt", "information not available": "data_display_issue.txt", "tracking data missing": "missing_data_guidance.txt", "system data issue": "data_display_issue.txt", "data unavailable": "data_display_issue.txt", "status not showing": "data_display_issue.txt", "blank data": "data_display_issue.txt", "information unavailable": "information_temporarily_unavailable.txt", "why no info": "information_temporarily_unavailable.txt", "data unavailable reason": "information_temporarily_unavailable.txt", "tracking unavailable reason": "information_temporarily_unavailable.txt", "system info unavailable": "information_temporarily_unavailable.txt", "no information": "information_temporarily_unavailable.txt", "data delay": "missing_data_guidance.txt", "information pending": "information_temporarily_unavailable.txt", "system not responding": "system_not_responding.txt", "system down": "system_not_responding.txt", "server issue": "system_not_responding.txt", "chatbot not working": "system_not_responding.txt", "system error": "system_not_responding.txt", "service unavailable": "system_not_responding.txt", "system failure": "system_not_responding.txt", "connectivity issue": "system_not_responding.txt", "technical problem": "system_not_responding.txt", "system downtime": "system_not_responding.txt", "tracking temporarily unavailable": "tracking_temporarily_down.txt", "temporary tracking issue": "tracking_temporarily_down.txt", "tracking not ready": "tracking_temporarily_down.txt", "shipment tracking pending": "tracking_temporarily_down.txt", "system tracking issue": "tracking_temporarily_down.txt", "tracking wait": "tracking_temporarily_down.txt", "data missing": "missing_data_guidance.txt", "no data": "missing_data_guidance.txt", "what to do missing data": "missing_data_guidance.txt", "information gap": "missing_data_guidance.txt", "missing status": "missing_data_guidance.txt", "unavailable data": "missing_data_guidance.txt", "help with order": "order_information_help.txt", "order help": "order_information_help.txt", "order information help": "order_information_help.txt", "assistance order": "order_information_help.txt", "order support": "order_information_help.txt", "shipment info help": "order_information_help.txt", "order query": "order_information_help.txt", "order details help": "order_information_help.txt", "tracking help": "order_information_help.txt", "wrong order id": "invalid_order_id_entered.txt", "invalid order id": "invalid_order_id_entered.txt", "incorrect order id": "invalid_order_id_entered.txt", "order id error": "invalid_order_id_entered.txt", "wrong reference": "invalid_order_id_entered.txt", "invalid reference": "invalid_order_id_entered.txt", "order id not found": "invalid_order_id_entered.txt", "typo order id": "invalid_order_id_entered.txt", "order number wrong": "invalid_order_id_entered.txt", "incorrect id": "invalid_order_id_entered.txt", "help using system": "system_usage_help.txt", "system help": "system_usage_help.txt", "how to use chatbot": "system_usage_help.txt", "usage guidance": "system_usage_help.txt", "system instructions": "system_usage_help.txt", "help guide": "system_usage_help.txt", "chatbot help": "system_usage_help.txt", "system support": "system_usage_help.txt", "usage help": "system_usage_help.txt", "how it works": "system_usage_help.txt", "how tracking works": "tracking_system_overview.txt", "tracking system explanation": "tracking_system_overview.txt", "system working": "tracking_system_overview.txt", "tracking process": "tracking_system_overview.txt", "order tracking system": "tracking_system_overview.txt", "shipment tracking method": "tracking_system_overview.txt", "tracking logic": "tracking_system_overview.txt", "how order tracking works": "tracking_system_overview.txt", "system overview": "tracking_system_overview.txt", "tracking mechanism": "tracking_system_overview.txt" };
+    const RESPS = { "order_dispatch_status.txt": "Dispatch is a major milestone, and I’m excited to check that for you!\nAn order is officially \"Dispatched\" only after the handover to transport.\n\nTo see if your items have reached this stage, I need your Order ID.\nI check the status by looking directly into our internal warehouse logs.\nWe never assume an order has been sent just because of time passed.\nOnce dispatch is confirmed, it is instantly reflected in your status.\nDispatch confirmation includes vehicle assignment and route initiation.\nNo provisional or estimated dispatch updates will ever be shown.\nPlease provide your valid Order ID now to verify the records.\nOnce you share the ID, I will retrieve the latest record for you!", "invalid_order_id_entered.txt": "I’m sorry about that! An incorrect Order ID won't be able to pull up any data because our system validates every entry strictly against our verified records. This is actually a safety feature to ensure that no mismatched information is ever displayed. I recommend carefully re-checking your ID for any small typing errors or transposed numbers.\n\nIncorrect IDs don’t affect your actual order in any way, so don't worry about any data being altered. Once you have the correct Order ID ready, please re-enter it, and I will validate it for you immediately. We prioritize accuracy and security above all else—thank you for your cooperation and for trying again!", "shipment_moving_or_stopped.txt": "I completely understand wanting to know if your package is currently making progress or taking a break! To check the real-time activity of your shipment, I just need you to share your Order ID. Our system identifies movement by evaluating transport activity logs and route progression updates, so we can see if your package is in motion or has paused at a defined checkpoint. I am sorry I can't guess this status for you, but we prioritize reliable tracking over making assumptions.\n\nIf the shipment is stopped, I will provide the last known status and the operational context behind it so you stay fully informed. If it's on the move, I'll be happy to confirm that for you! Reliability is our main focus, and your Order ID ensures that the movement indicators I show you are 100% verified. We really appreciate your patience and your help in keeping this process accurate. Whenever you're ready, please provide your Order ID so I can pull the latest data for you!", "confirm_order_status.txt": "I would be happy to confirm exactly where your order stands in our process! To give you a verified status—whether it's processing, dispatched, or in transit—I’ll need you to provide your Order ID. We avoid giving ambiguous or \"guessed\" confirmations because we want you to have total clarity on your shipment's stage.\n\nI apologize if the data isn't visible this second, but once you provide the ID, I can tap into our latest records to give you a definitive answer. This prevents any misinformation and ensures that you are always looking at the true operational state of your purchase. I’m ready to check as soon as you share that ID with me!", "service_reliability_explanation.txt": "Our reliability is the result of a tireless commitment to disciplined, repeatable operations! We don't just hope for the best; we use structured workflows, human verification, and real-time monitoring to ensure that every shipment follows its planned path. Our decisions are always backed by data, allowing us to provide a service you can truly depend on.\n\nI am sorry that I can't offer speculative \"guesses\" on progress, but that is exactly why you can trust us—we only report what has been verified. We prioritize quality over everything else and communicate with you through factual, transparent updates. We believe that trust is earned through this kind of consistent performance, and we strive to prove our reliability with every single delivery!", "industries_served.txt": "We specialize in supporting industries that require the highest level of controlled, compliance-focused logistics! Our most frequent partners are in the manufacturing, food processing, and bulk distribution sectors—businesses that deal with time-sensitive goods and require predictable, high-quality handling. We focus on these organized sectors to ensure we can maintain our rigorous standards.\n\nWe intentionally avoid fragmented retail-level deliveries so that we can dedicate our full resources to the unique needs of our industrial and commercial clients. Each industry engagement is carefully evaluated to ensure our capabilities align perfectly with the client's needs. This focused approach is what allows us to provide such consistent, reliable service across the sectors we serve!", "post_order_process_flow.txt": "It’s exciting to get a new shipment started, and I’d love to walk you through what happens next! Once your request is placed, it enters a structured internal review where we confirm the quantity, destination, and feasibility. A member of our team will then reach out to you personally to finalize the confirmation and arrange for the 35% advance payment.\n\nOnce payment is received, the real action begins: we assign the vehicle, map the route, and perform final compliance checks before dispatching. After the order is on its way, you’ll receive your tracking info within 36 hours, and the final balance is simply collected at the time of delivery. This human-led workflow is designed to avoid errors and keep you informed every step of the way!", "delay_handling_for_seafood.txt": "If a delay occurs, we immediately evaluate the situation using real-time operational data to ensure your shipment remains safe! Delays can happen for many reasons, such as heavy traffic or border checks, but we record every event transparently and never make assumptions about the impact. Our operational teams review the delay and, if necessary, initiate corrective actions to protect the freshness of your cargo.\n\nWe believe in factual communication, so we avoid speculative explanations and focus on what the data tells us. Our monitoring systems provide the visibility we need to stay accountable, and our human oversight team verifies that every action taken aligns with our quality preservation goals. By following these strict procedures, we maintain trust and ensure that your order stays reliable even when the unexpected happens!", "truck_selection_criteria.txt": "Selecting the right truck is a meticulous process that depends on the specific requirements of your shipment! We look at the quantity of the goods, the distance they need to travel, and their specific temperature sensitivities to determine the most suitable vehicle size. Our operational planning team manually validates every assignment to ensure feasibility and avoid any overloading.\n\nWe check for vehicle availability and ensure that every truck meets our strict compliance and safety standards before it is assigned. This human-led process is essential for reducing risk and optimizing transport efficiency. By prioritizing the right fit for your cargo, we protect the quality of your goods and ensure that our transport execution follows our high standards for reliability and trust!", "seafood_logistics_experience.txt": "We have extensive, specialized experience in the delicate world of seafood logistics! We know that seafood requires the highest level of freshness preservation and strict temperature control, which is why our operations are designed around specialized handling and rapid, disciplined route planning. We treat every seafood shipment with the urgency it deserves.\n\nOur team follows rigorous food safety norms and verifies transit conditions at every checkpoint to minimize any risk of spoilage. We don't use generic transport practices; we use an approach refined by years of experience and operational learning. You can trust us to manage the variability of seafood transport with the consistency and performance that your business relies on!", "track_my_order.txt": "I would be more than happy to help you locate your package today!\nHowever, I noticed that an Order ID wasn't included in your request.\nTo protect your privacy, I cannot access any details without it.\n\nOur system provides only verified information from our live logs.\nThis prevents any incorrect assumptions regarding your shipment status.\nOrder tracking involves multiple precise operational checkpoints.\nWithout a valid reference number, access to these logs is restricted.\nThis policy is strictly maintained to keep your personal data safe.\nPlease share your Order ID whenever you are ready to proceed.\nI am standing by and eager to get those tracking details for you!", "seafood_transit_duration.txt": "The duration for which seafood can be safely transported depends entirely on the product type and the cooling method used! Fresh seafood typically requires much shorter, more aggressive transit timelines to stay perfect, whereas frozen goods can be transported over longer distances thanks to sub-zero temperature control. We define these duration limits during our planning phase and never assume unlimited transit time.\n\nTo manage these timelines, we select the most efficient routes and perform regular operational checks to verify compliance. Our handling procedures are optimized to minimize exposure, and we use continuous monitoring to detect any deviations that might affect the quality of the shipment. By balancing speed with precise temperature management, we ensure that your seafood remains fresh and reliable regardless of the distance!", "data_display_issue.txt": "I understand it can be concerning when data isn't showing, but this typically indicates that our system is waiting for a verified update! We intentionally avoid displaying incomplete or unverified information to prevent any confusion. This can happen during the early stages of processing or if there is a temporary sync delay between our logs and the display.\n\nI’m sorry for the wait, but rest assured that your data will appear as soon as it is confirmed by our operations team. To check the current state of your records, please provide your Order ID so I can evaluate the availability for you. We appreciate your patience while we prioritize accuracy and integrity for your order!", "seafood_transport_process.txt": "We take the transportation of seafood incredibly seriously, as we know that maintaining the cold chain is the only way to ensure quality and safety! Our process begins with a rigorous planning stage where temperature requirements are strictly defined based on the specific type of seafood you are shipping. We then assign specialized refrigerated vehicles that are perfectly equipped to handle the task, ensuring that handling is minimized to reduce any risk of exposure.\n\nThroughout the journey, we continuously monitor transit conditions and optimize our routes based on duration and climate to preserve absolute freshness. Every shipment must comply with the highest food safety norms, and we perform regular operational checks to ensure no improper handling occurs. By standardizing our procedures and maintaining human oversight, we guarantee that freshness is protected from our facility all the way to your door!", "truck_breakdown_handling.txt": "In the rare event of a truck breakdown, we have strict operational protocols in place to handle the situation immediately! Our systems record the incident, and our operational teams respond by initiating backup arrangements to ensure the safety of your shipment. Our top priority during a breakdown is assessing temperature preservation and moving quickly to minimize any quality risks.\n\nWe believe in factual communication, so we provide clear updates rather than speculative guesses while we work on the resolution. Our human oversight team manages the process to ensure that compliance is maintained and that corrective actions are fully logged. By following these procedures, we minimize the impact of transport failures and reinforce the reliability of our service even in challenging situations!", "perishable_goods_handling.txt": "Yes, we are specialists in the transportation of perishable goods! We understand that these shipments require incredibly controlled conditions, which is why we evaluate every request for its specific temperature and handling sensitivities. Our procedures are strictly followed to ensure that your fresh goods are preserved perfectly from the moment they are dispatched.\n\nWe use dedicated refrigerated transport and continuous monitoring to maintain the integrity of your cargo throughout the entire journey. We don't believe in \"improper\" shortcuts; instead, we use defined workflows and operational checks to minimize any risks to quality. Your perishable items are our priority, and we maintain absolute discipline to ensure they arrive exactly as intended!", "export_operations_support.txt": "We provide robust support for export-oriented logistics, helping our clients manage the stricter compliance and handling requirements that come with international trade! While we are not a trading entity ourselves, we excel at coordinating the movement and documentation of goods destined for export, ensuring that every timeline and quality standard is met.\n\nWe evaluate export readiness on a case-by-case basis to ensure we can maintain the necessary temperature controls and monitoring for these high-priority shipments. Our system records every export-related movement with total transparency, giving you the visibility you need for your global operations. We prioritize operational accuracy to ensure your export journey starts on the right foot!", "small_truck_availability.txt": "Yes, we definitely do! Our small refrigerated trucks are an essential part of our fleet, specifically used for short-distance transport and low-volume local deliveries. They offer the same level of precise temperature control as our larger vehicles but provide the flexibility needed to navigate city-level logistics and ensure that your goods reach their destination quickly and safely.\n\nWe assign these small trucks appropriately through our operational planning, ensuring they meet all food-grade standards and maintenance requirements. Our monitoring systems track their temperature compliance just as rigorously as our long-haul fleet. By using these smaller vehicles where appropriate, we reduce transit complexity and maintain the highest quality for your local seafood deliveries!", "assigned_truck_details.txt": "I would be more than happy to help you identify the vehicle assigned to your delivery! To provide these specific details, I’ll need you to share your Order ID so I can access our dispatch planning records. Our team carefully selects trucks based on shipment size and temperature requirements—ranging from small vans to large refrigerated vehicles—to ensure your items stay in perfect condition.\n\nI’m sorry I can’t show you the vehicle info just yet, but the system only links the truck type once the dispatch is officially confirmed. This prevents any premature or inaccurate details from being shared. Once you provide the ID, I can check the internal transport logs and clearly display the operational category of the truck assigned to you for full accountability", "delivery_eta_information.txt": "I’d love to help you plan ahead by providing an estimated time of arrival for your order! To retrieve this info, please share your Order ID so I can look at the planned transit duration. Our system calculates the ETA based on normal conditions and verified dispatch data, ensuring that the window we give you is as realistic as possible.\n\nI am sorry that I can't provide a speculative guess without your ID, as we prefer accuracy over rough estimates that might create false expectations. If operational factors like traffic or weather cause a change, the ETA will be revised in our logs to keep you informed. Simply share your ID, and I will fetch the most up-to-date arrival timeline for your planning!", "temperature_controlled_trucks.txt": "Yes, every single truck we use for perishable transport is fully temperature controlled! We use active cooling systems to maintain the defined temperature ranges required to preserve the quality of your seafood. Our operational planning ensures that the cooling capacity of each vehicle perfectly matches the needs of the shipment, leaving nothing to chance.\n\nWe don't just assume the systems are working; we use monitoring to check compliance and log any deviations for our human oversight team to review. Regular maintenance is mandatory to ensure the reliability of these cooling units, supporting our commitment to food safety and transit integrity. By prioritizing this level of regulation, we reinforce the safety of your cargo and ensure a consistent cold chain!", "document_verification_process.txt": "Yes, document verification is a mandatory step that must be completed before any dispatch is initiated! We review all required paperwork—including compliance documents and transport papers—to ensure everything is 100% accurate and lawful. This process is essential for preventing delays at checkpoints and ensuring that we are following all regulations.\n\nOur human oversight team confirms every detail and ensures that we never bypass these critical checks. By maintaining this level of operational discipline, we ensure a smooth transit for your shipment and protect all stakeholders involved. This focus on accuracy and record-keeping is part of our commitment to being a reliable and transparent logistics partner!", "quality_check_procedures.txt": "Yes, we perform a final quality check before every delivery to ensure your items have been handled perfectly! These checks involve reviewing temperature records and operational logs from the journey to verify that transit conditions were maintained throughout. We don't just assume quality; we confirm it before the physical handover.\n\nOur human oversight team documents these findings and records any deviations transparently. If an issue is found, we initiate corrective actions immediately to protect our customers and stay accountable. By prioritizing quality assurance at the final stage, we reinforce the trust and reliability that our service is known for!", "information_temporarily_unavailable.txt": "Information can be unavailable when our internal confirmation is still pending! We believe in only showing factual, verified data, so if the dispatch hasn't been finalized or the logs haven't synced, the system will keep the info hidden. This prevents incorrect updates and ensures that when you do see information, you can trust it 100%.\n\nI apologize for any delay, but please keep in mind that this is part of our commitment to operational trust. If you have your Order ID handy, please share it with me so I can check if your info is in a pending state. We recommend rechecking in a little while once the confirmed data is ready—thank you for your patience!", "order_details_view.txt": "I’d be delighted to pull up a full summary of your order for you! To access your shipment reference, route, and current status, I just need you to provide a valid Order ID. Each ID is uniquely mapped to a specific record, and I want to make sure I’m showing you the most up-to-date and verified information from our internal data.\n\nI’m sorry for the extra security step, but this design ensures your data stays protected and that no partial or assumed information is ever displayed. Once you enter the ID, I can instantly show you the origin, destination, and current transit stage of your shipment. I’m standing by and ready to retrieve those details for you as soon as you’re ready!", "tracking_system_overview.txt": "Our tracking system is built on a foundation of verified operational data to ensure you only see the truth! It maps each unique Order ID to a specific shipment record and only begins showing updates once dispatch is officially confirmed. We don't assume progress; we only display the status and location that have been physically logged at our checkpoints.\n\nThis approach prioritizes accuracy over frequency, meaning we never generate artificial or \"guessed\" data. If info is pending, it’s because our team is verifying the latest movement to maintain total integrity. Our system is designed to provide you with a reliable, transparent, and secure way to monitor your shipment from start to finish!", "logistics_company_confirmation.txt": "Yes, we absolutely are! We function as a comprehensive logistics service provider, specializing in the end-to-end coordination of complex shipments. Unlike a simple broker platform, we take direct operational responsibility for every shipment, ensuring that planning, execution, and monitoring are all handled with standardized, professional workflows.\n\nOur logistics approach is built on transparency and accountability, using verified data to drive every decision. We avoid informal transport methods in favor of structured coordination that prioritizes accuracy and reliability. From route planning to final delivery, we manage every detail within a defined scope to ensure your cargo is exactly where it needs to be!", "family_business_background.txt": "Our company is deeply rooted in a legacy of long-standing values and continuity! Our operations reflect a wealth of experience and operational learning that has been carefully passed down and refined over time. This heritage shapes our culture of responsibility, where every decision is made with a long-term view of accountability and reliability.\n\nWe combine this rich background with highly disciplined, modern business practices to ensure our management is structured and professional. We avoid informal styles in favor of established workflows and maturity that our clients can trust. It is this balance of traditional values and operational discipline that defines our growth and ensures we remain a stable partner for your business!", "company_services_description.txt": "At our core, we are experts in the structured movement of goods under strictly controlled conditions! We manage the entire logistics lifecycle—from initial planning and human-verified dispatch to real-time monitoring and final delivery. We specialize in cargo that requires a gentle touch and precise timing, such as perishable goods that need constant temperature monitoring.\n\nWe don't operate as a simple open marketplace; instead, we handle every order through dedicated internal coordination to ensure safety and compliance. We prioritize accuracy and data-supported decisions over raw speed, ensuring that our industrial and commercial clients receive their goods in perfect condition. Our services are built for those who value reliability and documented, clear communication!", "shipment_temperature_monitoring.txt": "Yes, your seafood is under constant watch throughout its entire journey! Our monitoring process focuses specifically on temperature and handling conditions, with data being logged at every defined checkpoint. We don't just hope that everything is going well; we use this data to provide total quality assurance and to ensure that our strict standards are being met at every stage.\n\nThis level of visibility is crucial for accountability and allows our human oversight team to verify the logs and intervene if any issues arise. We avoid making speculative claims about your shipment's condition and instead rely on factual monitoring data to support our decisions. By maintaining this level of operational discipline, we protect the safety and freshness of your seafood with absolute transparency!", "cold_chain_regulatory_norms.txt": "Yes, we are fully committed to following all cold chain norms to protect the quality of your shipment! This means we enforce temperature control throughout the entire transit process and use standardized handling procedures to ensure consistency. We don't just assume adherence; we use monitoring to verify that every cold chain standard is being met.\n\nOur human oversight team ensures that we maintain discipline and that our vehicles are selected specifically to support these norms. If any deviations occur, they are logged transparently and addressed with immediate corrective action. By prioritizing cold chain compliance, we provide a service that preserves quality, ensures safety, and reinforces the trust you have in our logistics!", "order_start_status.txt": "I truly hope everything is running smoothly, but I’d be glad to perform a check for any potential issues! Please provide your Order ID so I can scan our operational monitoring logs for any flags related to delays or routing. Our system is designed to be transparent, so if a confirmed problem exists, I will report it to you clearly rather than leaving you to wonder.\n\nIf no issues are recorded, I’ll be delighted to tell you that everything is proceeding normally! We avoid sending speculative warnings to prevent unnecessary worry, so we only notify you when a concern is verified by our team. Please enter your ID below so I can give you peace of mind regarding your shipment’s status.", "shipment_border_crossing_status.txt": "I would love to help you track this exciting logistics milestone! To check if your shipment has officially crossed the state border, please provide your Order ID so I can scan the latest transit checkpoints. We never make assumptions based on estimated travel time; instead, we wait for a confirmed update from our route logs to ensure we are giving you the correct information. It is so important to us that you have a clear picture of your package's journey.\n\nI am sorry if there is a slight wait for border data to upload, but if it is temporarily delayed, I will report that to you transparently to avoid any misinformation. This order-specific status is a key part of our tracking process, and your ID allows me to retrieve those movement logs with total accuracy. Once you provide that reference, I can tell you if your shipment is still in its current stage or if it has successfully moved across the line. Thank you for your patience!", "shipment_update_request.txt": "I would be more than happy to get you the latest scoop on your shipment's progress! To fetch the most recent entry from our operational logs, I’ll need you to provide your Order ID. Whether it’s a change in location, a status refresh, or a transit milestone, I want to make sure the update I give you is 100% factual and verified.\n\nI apologize if there hasn't been a new update in the last few hours, as we only show progress when a new checkpoint has been officially cleared. This approach avoids giving you any false indications of movement. Once you provide your ID, I’ll scan our records immediately to provide you with the most current information available. Thanks for keeping in touch!", "order_confirmation_timeline.txt": "I know you're eager to get your shipment moving, and I’m here to guide you through the process! Order confirmation isn't just an automated \"ping\"; it’s a verified stamp of approval from our operations team after they’ve carefully reviewed your request for feasibility and safety. Once they validate your shipment details, they will reach out through official channels to share the confirmation and request the standard 35% advance payment.\n\nThis manual verification is exactly what prevents misinformation and ensures that when we say \"yes,\" we are fully prepared to execute. Following this confirmation and the subsequent dispatch, you will typically receive your tracking information within approximately 36 hours. Thank you for your patience while our team ensures everything is perfect for your delivery!", "government_compliance_standards.txt": "Yes, every shipment we handle is fully compliant with all government regulations and legal requirements! This compliance covers everything from the actual handling of the goods to the mandatory documentation needed for inter-state movement. We build compliance checks directly into our operational planning to ensure that every journey is lawful and secure.\n\nOur human oversight team verifies all requirements and reviews documentation before any dispatch is initiated. By following these government norms, we protect both our customers and the integrity of our company. We stay updated on regulatory changes and ensure that our monitoring systems record adherence to these laws, providing a transparent and reliable service you can depend on!", "system_usage_help.txt": "I would be delighted to guide you through using our system! To get the most out of it, simply follow the prompts—if you need order-specific info, make sure you have your Order ID ready. For general questions, you can ask anything, and I’ll provide the best guidance based on our verified operational data.\n\nI’m sorry if any part of the process is unclear, but please know that I’m here to provide factual, guided help every step of the way. If data ever appears unavailable, it's simply because it's still being confirmed. We maintain a high level of transparency to make things as easy as possible for you. Just follow the prompts, and let me know how I can assist!", "expected_delivery_time.txt": "I would be absolutely thrilled to help you plan for your delivery! To retrieve your specific expected delivery time, I just need you to share your Order ID with me. This timeline is calculated based on route distance and current transport conditions, and I want to make sure the information I give you is 100% accurate. Our system intentionally avoids misleading countdowns or assumptions, displaying a confirmed time only after the dispatch has been officially verified by our team.\n\nPlease keep in mind that these delivery windows reflect operational realities, so if things change on the road, the system will revise the time accordingly to keep you in the loop. I am sorry that I can't provide an estimate without that valid reference number, but it is the only way to ensure the data is specific to your package. Share your Order ID now, and I will fetch those planned details for you instantly. Thank you for being so patient!", "how_to_place_order.txt": "Placing an order with us is a straightforward process guided by our expert team! First, you'll need to submit a shipment request with your quantity and destination details. Since we prioritize quality, all orders are reviewed manually by our staff rather than being auto-approved, and we’ll contact you shortly after you submit to finalize the plan.\n\nAfter we’ve confirmed the feasibility of your shipment, we’ll guide you through the 35% advance payment required to secure your booking. Once the journey begins, you'll receive your tracking information in about 36 hours. While I can’t book the order directly here in the chat, our team will be with you every step of the way to ensure a perfect experience!", "frozen_and_wet_seafood_transport.txt": "Yes, we are fully equipped to handle both frozen and wet seafood shipments! We understand that these two categories have very different handling requirements and temperature needs, so we define separate ranges for each. During the planning phase, we assign the most appropriate refrigerated vehicles and ensure that transit is optimized for the specific sensitivity of the product.\n\nTo prevent any quality risks, we handle frozen and wet seafood with separate, standardized procedures and perform regular operational checks to verify conditions. Our human oversight team ensures that discipline is maintained throughout the journey, prioritizing safety and quality preservation for both types of cargo. We are committed to maintaining the highest standards of reliability for all the seafood categories we transport!", "current_order_location.txt": "Finding the exact whereabouts of your package is a top priority for me! To see the last verified checkpoint, please enter your Order ID. I’ll pull the data from our transport logs to show you exactly where the shipment was last scanned—whether it’s currently moving through a hub or stationary at a stoppage location.\n\nI'm sorry I can't give you an \"estimated\" location, but I’d much rather give you a 100% accurate confirmed spot than a guess. If the data is temporarily refreshing, I’ll tell you that clearly to maintain our commitment to transparency. Your ID is the key to this visibility, so please share it whenever you're ready to see the map!", "long_distance_truck_usage.txt": "For long-distance transport, we typically deploy our large refrigerated trucks! These high-capacity vehicles are built to handle extended transit durations while providing the most stable and powerful temperature control. By using larger trucks for bulk shipments, we can minimize handling interruptions and ensure that your cargo moves safely and efficiently across state lines.\n\nOur route planning considers both the load and the distance, and our human oversight team verifies that each large truck is perfectly suited for the journey. We maintain these vehicles to the highest standards to ensure reliability on long-haul routes, prioritizing quality preservation throughout the trip. By choosing the right heavy-duty vehicle, we optimize our logistics to be as safe and consistent as possible!", "seafood_transport_regulations.txt": "Yes, seafood transport is a highly regulated industry, and we strictly adhere to all legal requirements! These laws govern everything from the exact temperatures required for different seafood types to the documentation needed for transport. Compliance with these rules is mandatory to ensure food safety and to protect the public.\n\nOur operational planning includes rigorous legal checks, and our human oversight team verifies that every part of the transit aligns with these regulatory standards. We monitor our compliance continuously and document any corrective actions to ensure we stay within the law. By prioritizing these legal standards, we maintain a safe, reliable, and trustworthy logistics service!", "temperature_maintenance_status.txt": "I know how critical temperature control is for the quality of your order, and I’d be happy to verify those logs for you! Please provide your Order ID so I can check the compliance data from our monitoring sensors. We track the climate from dispatch through transit to ensure it stays within the required thresholds every step of the way.\n\nI'm sorry that I can't confirm compliance without the specific data from your shipment's sensors, as we never want to make incorrect claims about safety. If there have been any deviations, I will report them to you honestly. We prioritize shipment safety and quality above all else, so please share your ID so I can pull the latest temperature reports for you!", "fssai_compliance_details.txt": "Yes, we strictly follow all FSSAI regulations to ensure the highest standards of food safety! Compliance with these national guidelines is mandatory for our operations, and we align our handling procedures, temperature controls, and hygiene practices directly with FSSAI norms. We perform regular operational checks to verify that every part of our process is in full adherence.\n\nOur human oversight team ensures that all documentation is in order and that our transport vehicles meet all food-grade requirements. Any deviations are recorded transparently, and we document our corrective actions to maintain absolute safety for consumers. By treating these regulatory requirements with the utmost discipline, we build a service that is both reliable and safe!", "certifications_followed.txt": "The certifications we follow are strictly aligned with the legal and operational requirements for high-quality food transport! We prioritize food safety norms and transport standards that are recognized by regulatory authorities, ensuring that our operations are always safe and compliant. We avoid overstating our certifications and instead focus on maintaining the documentation to prove our adherence.\n\nOur operational checks and human oversight ensure that we are meeting these standards every day, and we maintain clear records for every shipment. We review our compliance regularly to ensure we are always up to date with the latest industry requirements. By maintaining this level of transparency and following these defined standards, we build a service that is rooted in reliability and integrity!", "truck_food_safety_standards.txt": "Yes, our trucks are fully compliant with the highest food safety transport standards! We maintain every vehicle for strict hygiene and follow food-grade handling requirements to ensure that your cargo is never compromised. Our temperature control systems are a core part of this safety mission, supporting the preservation of quality from start to finish.\n\nWe perform regular operational checks and keep detailed maintenance records to verify that every truck in our fleet is meeting these essential standards. Human oversight is a key part of our workflow, ensuring that no truck is ever deployed if it doesn't pass our safety tests. By prioritizing transport hygiene and following all mandatory regulations, we ensure that your delivery is as safe and reliable as possible!", "cold_chain_logistics_explanation.txt": "Cold chain logistics is a specialized form of transport that keeps perishable goods within a specific, safe temperature range from start to finish! It involves a seamless chain of planning, specialized refrigeration, and constant monitoring to ensure that there are no \"gaps\" where the temperature might rise. This process is essential for reducing spoilage and maintaining the quality of sensitive items like seafood.\n\nOur cold chain system covers every step of the way—from the moment your order is dispatched until it reaches its final destination. We use appropriate refrigerated vehicles and manage transit durations carefully to ensure that safety is never compromised. By prioritizing quality preservation and disciplined human oversight, we provide a cold chain service that is both reliable and essential for your perishable needs!", "why_choose_our_company.txt": "Trust is the foundation of everything we do, and we earn it by being completely transparent and accountable at every turn! We will never present a guess as a fact; every response and update we give you is rooted in verified operational records. We treat compliance as a mandatory duty and prioritize the safety of your cargo over all else.\n\nWe avoid exaggerated claims and instead focus on documented, structured processes that you can see for yourself through our monitoring systems. By acknowledging issues transparently and protecting your data integrity, we build a relationship based on credibility and long-term performance. We are here to be the reliable partner you can count on, and we prove that through our actions every day!", "tracking_not_available_reason.txt": "I’m sorry for the concern caused by the lack of tracking info, but please rest assured that this is usually just a matter of timing! To check the specific status of your data, please share your Order ID. Tracking is only activated once dispatch is officially confirmed and the data syncs with our system, which means \"unavailable\" status typically just means the journey is in its very early stages.\n\nWe prioritize accuracy over placeholders, so we don't display estimated tracking links until we have verified operational inputs. This prevents any confusion or misinformation while our team prepares your shipment for the road. Please provide your ID, and I will check if your tracking is currently in a pending state or ready to go. Thank you for your patience!", "bulk_order_request.txt": "We would be absolutely delighted to assist you with a bulk order! High-volume shipments are a significant responsibility, so our operations team evaluates these requests with extra care to ensure we have the perfect capacity and route planning in place. Once you share the volume and destination details, our staff will contact you directly to discuss the feasibility and move toward internal validation.\n\nPlease keep in mind that bulk orders follow our standard policy requiring a 35% advance payment once the manual review is successfully completed. This disciplined approach ensures that we can guarantee safety and compliance for large-scale logistics. Once your bulk shipment is dispatched, you’ll be able to track its progress within 36 hours, ensuring total transparency for your large-scale operations!", "company_overview.txt": "I am so proud to tell you about who we are! Our company operates as a highly disciplined logistics and transportation provider, specializing in the complex world of time-sensitive and perishable shipments. We don't just see ourselves as a delivery service; we view every shipment as a vital responsibility that requires meticulous planning, transparency, and absolute accountability.\n\nWe focus our operations across multiple regions in India, serving bulk consumers and manufacturers who rely on our controlled processes and rigorous safety standards. We believe in building long-term trust through verified data and official communication rather than informal practices. Our goal is to ensure consistency and reliability for every client, every single time!", "order_safety_status.txt": "We understand that the safety of your shipment is your absolute priority, and it is ours as well! To give you a verified safety report, I’ll need you to provide your Order ID so I can check the latest compliance data. Our system evaluates safety based on strict adherence to handling procedures, including temperature control and route integrity, ensuring your items are treated with the highest level of care.\n\nI’m sorry that I can't offer a definitive assurance without checking the live operational data first, as we avoid making assumptions about any shipment’s condition. Once you share the ID, I can check the logs from multiple checkpoints to confirm that all safety parameters are being maintained. We value your trust and are committed to delivering your order in perfect condition!", "seafood_transport_request.txt": "We would be honored to handle your seafood shipment! We specialize in the controlled transport of perishable goods and use dedicated refrigerated vehicles to ensure absolute freshness. Once you submit your request, our team will evaluate the specific temperature requirements and destination to create a custom transport plan for you.\n\nTo get started, our staff will contact you to confirm the details and arrange the standard 35% advance payment. The rest is simply paid at the time of delivery! We handle all the route and compliance checks manually to ensure your seafood stays at the highest quality. We look forward to helping you move your perishable cargo safely!", "tracking_temporarily_down.txt": "I apologize if tracking is temporarily unavailable; this usually just means our data is in the middle of a fresh update! We don't display outdated or placeholder tracking because we want you to have the most accurate picture possible. This temporary wait often happens before a dispatch is confirmed or during a quick system sync.\n\nTo see where your order stands, please provide your Order ID so I can verify the readiness of your tracking data. Once the confirmed logs are ready, your tracking will resume immediately. We prioritize correctness and transparency above all else—thank you for your patience and for trusting our system's integrity!", "order_data_not_available.txt": "I understand it can be frustrating to see a \"data not available\" message, but this typically just means your update is currently in the queue! To see what's happening behind the scenes, please share your Order ID. This status often appears during the early processing stages or when our system is waiting for a fresh sync from the road.\n\nWe intentionally avoid showing estimated or fabricated values to maintain your trust, so we only display data once it's been confirmed by our operations team. If your information is still pending, I will let you know and recommend checking back in a short while. Please provide your ID so I can verify the current state of your records for you!", "frozen_goods_transport.txt": "Transporting frozen goods is a specialty of ours, and we take the cold chain very seriously! To ensure your items stay at the perfect temperature, our team manually reviews every request to assign the most suitable refrigerated vehicle. Once you've submitted your details, our staff will reach out to confirm the distance and handling needs of your shipment.\n\nThe process is simple: we’ll arrange a 35% advance payment to prepare the logistics, with the final balance due when your goods arrive safely. We monitor temperature compliance throughout the entire transit to give you total peace of mind. Thank you for choosing us to handle your frozen cargo—our team will guide you through the next steps very soon!", "order_information_help.txt": "I would be absolutely happy to help you with your order information! To get started, I’ll just need you to provide a valid Order ID so I can retrieve the most up-to-date and verified records for you. Whether you're looking for your current status or a transit milestone, I’m here to provide factual assistance from our secure system.\n\nI’m sorry that I can’t look up specific details without the ID, but this ensures that the information I share with you is 100% accurate and private. Once you share the ID, I will scan our records and display your confirmed details as clearly as possible. I am standing by and ready to help—just let me know your Order ID whenever you can!", "tracking_start_time.txt": "I completely understand wanting to see your shipment on the map as soon as possible! To ensure the data you see is 100% accurate, tracking is only activated once dispatch is officially confirmed and the route and vehicle assignments are finalized. We avoid showing speculative or \"placeholder\" tracking links because we value your trust and operational integrity above all else.\n\nUsually, you can expect to see live tracking details within 36 hours of the dispatch being completed. I’m sorry if there is a brief wait while our team verifies the transport data, but this timeline ensures that when the tracking turns on, it provides reliable, real-time updates. If you check before then, the system will simply show a \"pending\" status—thank you for understanding our commitment to correctness!", "tracking_details_availability.txt": "I understand you're excited to start tracking your package, and I’m eager to help you get those details! To check the current readiness of your tracking info, I just need your Order ID. Tracking details are generated only after the physical dispatch is completed and the route mapping is finalized. This process ensures that when you finally get that link, it actually works and provides 100% accurate data.\n\nI apologize for the wait while our team handles the transport logging, as this can take a bit of operational time. If the details aren't ready yet, I will clearly show you a \"pending\" status and give you an expected availability window so you aren't left in the dark. Please share your ID now, and I’ll see if your tracking is ready to go!", "regulatory_violation_handling.txt": "In the event that any internal or external rules are violated, we address the situation through a thorough internal review! We record every deviation transparently and use human oversight to investigate exactly what happened. This allows us to take immediate corrective actions and apply preventive measures to ensure it doesn't happen again.\n\nWe believe in total accountability, so we never conceal violations; instead, we assess the impact on quality and safety and document everything. This helps us learn and improve our processes to maintain the high level of trust our customers expect. By following these strict corrective procedures, we ensure that our operational integrity and safety remain our top priorities!", "climate_variation_handling.txt": "We are fully prepared to handle climate variations by incorporating them into our initial route planning! We know that external heat and humidity can affect cooling intensity, so we adjust our refrigeration settings and plan operational buffers to counteract these regional conditions. Our handling procedures are designed to minimize any exposure to outside air, keeping your shipment perfectly chilled.\n\nOur system monitors the impact of these climate factors and allows our human oversight team to verify that our response is effective. If any deviations are detected, they are logged, and corrective actions are taken immediately to preserve quality. By adapting our execution to the environment, we ensure a consistent and reliable service that protects your cargo no matter what the weather is like outside!", "order_processing_time.txt": "We understand that timing is everything when you're planning a shipment! Once you submit a request, our internal review process begins immediately to check feasibility and compliance, ensuring every detail is perfectly aligned for a smooth journey. I'm sorry I can't give you an instant \"one-size-fits-all\" answer, as the duration can vary depending on your specific shipment requirements and handling needs.\n\nTypically, once the internal review is complete and your 35% advance payment is confirmed, we move straight into the dispatch planning phase. You can generally expect tracking details to be enabled within 36 hours of dispatch, reflecting our commitment to careful, human-verified planning. We appreciate your patience as we maintain this rigorous process to avoid any operational delays down the road!", "continuous_temperature_monitoring.txt": "We perform temperature monitoring at every critical checkpoint throughout the transit process to ensure your shipment stays safe! While the frequency of updates can depend on the specific operational setup of the route, our focus is always on capturing data where it matters most. Every piece of temperature data is logged and reviewed by our human oversight team to verify that our standards are being met.\n\nWe avoid making speculative claims about \"continuous\" coverage and instead report our data availability with total transparency. This honesty allows us to maintain a high level of accountability and ensure that safety and quality are always the top priority. By following these disciplined monitoring guides, we protect the freshness of your seafood and reinforce the trust you place in our logistics!", "system_not_responding.txt": "I’m truly sorry if the system isn’t responding as expected; this can happen during brief periods of maintenance or due to temporary connectivity issues! During these times, we don't process requests to avoid giving out partial or incorrect data. Our priority is always to maintain operational integrity and protect your order information.\n\nI recommend trying again in a few minutes once our team has restored full responsiveness. Rest assured that no data is lost during these interruptions—your information is safe and will be available as soon as the system is back online. Thank you for your patience while we work to ensure our service remains reliable and accurate for you!", "reason_for_order_delay.txt": "I truly apologize for the frustration a delay can cause, and I want to help you understand exactly what is happening. To perform a detailed delay analysis, please provide your Order ID so I can access the verified operational logs. We don't believe in giving generic or speculative explanations; instead, we look for confirmed factors like border inspections, traffic, or weather that have been specifically logged by our transport team.\n\nIf no delay exists, I will be delighted to tell you that your order is still on schedule to save you any unnecessary concern! However, if a stoppage has occurred, I will display the supporting context with full transparency so you aren't left wondering. Our priority is operational clarity, and your Order ID is the secure key I need to unlock those records for you. I really appreciate your patience while we work through these logistics. Please enter your Order ID below to continue.", "food_safety_assurance.txt": "Ensuring food safety is the core of our entire operation, and we achieve it through strictly controlled handling and enforced standards! We follow food-grade transport protocols and use temperature-controlled environments to minimize risk at every step. Our process includes regular quality checks and the use of operational logs to record that every safety protocol is being followed to the letter.\n\nOur human oversight team verifies these safety measures continuously, and we are quick to document any corrective actions if a deviation is detected. We prioritize consumer protection above all else, and our disciplined approach ensures that our service remains reliable and safe. By maintaining this level of integrity and following continuous safety checks, we provide a logistics service you can trust completely!", "order_delay_check.txt": "I am so sorry if you have been feeling anxious about a potential delay! To give you a completely honest answer, I need you to provide your Order ID so I can evaluate the actual transit data against our planned duration. Our system is designed to avoid speculative alerts, meaning we only label a shipment as delayed once a mismatch is verified through internal logs. Whether it is a border check, weather conditions, or route changes, I want to ensure you have the exact facts rather than a guess.\n\nOnce you share that ID, I can transparently show you if your order is still marked as on schedule or if a verified delay has been logged. We prioritize operational trust, so if the transport logs are temporarily unavailable, I will let you know that clearly instead of giving you a false alarm. I truly appreciate your patience and understanding as we work to keep your delivery on track. Please provide your Order ID whenever you're ready so we can look into this together!", "freshness_maintenance_method.txt": "Maintaining freshness is at the heart of everything we do, and it starts with absolute temperature control! We carefully plan every transit duration and define strict temperature thresholds to ensure your seafood never leaves its ideal environment. Our handling procedures are designed to minimize exposure to the elements, and we use route planning that specifically considers regional climates to avoid any unnecessary risks.\n\nWe never make assumptions about the condition of a shipment; instead, we rely on continuous monitoring and operational discipline to protect the quality of your goods. Freshness is verified at multiple checkpoints by our expert team, ensuring that any deviations are recorded and addressed immediately. By prioritizing quality at every step, we ensure that your seafood arrives as fresh as the day it was caught!", "shipment_route_information.txt": "I’d love to give you some visibility into the path your shipment is taking! To see the confirmed transit route, please share your Order ID with me. Our routes are carefully planned for safety and efficiency, and I can display the mapped path once the dispatch operations are officially logged. I want to be sure I'm showing you the real route rather than a speculative one.\n\nIf the shipment is redirected for any reason, those updates are logged internally, and I’ll be sure to report that transparently. I apologize that I can't access these specific logistics details without your reference number, but it’s essential for operational clarity. Please provide your Order ID now, and I’ll fetch those transport logs for you!", "seafood_temperature_standards.txt": "The temperature we use is precisely tailored to the specific type of seafood you are transporting to ensure maximum safety! For wet seafood, we maintain a strictly controlled cooling environment, while frozen seafood requires sub-zero conditions to stay perfectly preserved. These ranges are defined during our meticulous planning phase and are enforced through the use of appropriate, high-quality refrigeration systems.\n\nWe monitor these conditions at every key stage of the journey, verifying that transit conditions align with our strict handling standards. Our system logs every detail, ensuring that no assumptions are made and that safety is never compromised. By prioritizing these precise temperature levels, we prevent spoilage and ensure that the quality of your shipment is maintained with absolute consistency!", "weather_impact_on_order.txt": "I completely understand being concerned about the weather, and I want to give you an honest assessment of its impact! Please provide your Order ID so I can check our operational observations for your specific route. We don't believe in speculating, so we only record a weather impact if it actually causes a change in transit or a delay in the logs.\n\nIf your order is still on schedule despite the weather, I’ll be thrilled to give you that peace of mind! If conditions have caused a delay, I will report it transparently so you know exactly what’s happening on the road. We prioritize your shipment's safety above all else. Please share your ID so I can verify the latest environmental reports for your route.", "shipment_current_location.txt": "Pinpointing the exact location of your shipment is a top priority!\n\nTo see the most recent checkpoint, please provide your Order ID.\nLocation details are accessed strictly through these reference numbers.\nI determine the location based on the very last confirmed transport log.\nOur system tracks movement through predefined route checkpoints.\nI will never show you approximate or assumed locations for accuracy.\nIf your shipment is moving, the last scanned hub will be shown.\nShould there be a data delay, I will report it to you honestly.\n\nOnce verified, I can show you the location information immediately.\nI'm ready to help—just let me know your Order ID whenever you can!", "seafood_quality_issue_handling.txt": "I am truly sorry if you ever have a concern about quality, and I want you to know that we address these situations with absolute integrity! We assess any potential quality impact through a thorough operational review, checking all handling and temperature logs from the journey. Our company takes responsibility for verified issues and initiates corrective actions immediately to resolve the situation.\n\nWe believe in total accountability, which is why we record every deviation transparently and never try to conceal or deny a problem. Our human oversight team verifies all findings to ensure that our evaluation is factual and fair. By following these systematic procedures, we preserve your trust and ensure that our commitment to safety and quality remains at the center of everything we do!", "company_unique_strengths.txt": "What truly sets us apart is our absolute commitment to operational discipline and transparency! We never make guesses or speculative commitments; every decision we make is backed by verified data and a structured, repeatable process. We prioritize the quality and safety of your shipment over raw volume, ensuring that every cargo gets the attention it deserves.\n\nWe believe that accountability is earned through consistency, which is why we rely on human verification and documented workflows rather than shortcuts. Our communication is always factual, and we never assume a status without proof. It is this blend of rigorous planning, data integrity, and a culture of responsibility that makes us a trusted partner in the logistics industry!", "customer_base_information.txt": "We are honored to serve a diverse group of professional businesses that require high-stakes, reliable transportation! Our primary clients are manufacturers, processing units, and institutional bulk buyers who deal with perishable or time-sensitive goods. These are partners who value consistency, predictable handling, and verified tracking over simple retail delivery.\n\nBecause our operations are designed for business-to-business logistics, we focus on building long-term relationships based on operational compatibility and performance. We make it a point to never overcommit, ensuring that we only take on shipments where we can guarantee our signature level of quality. It’s a privilege to support the industries that keep our economy moving!", "book_shipment_request.txt": "I can certainly help guide you through the booking process! While I can’t generate a booking number directly here in the chat, I can explain exactly how our team will assist you. Once you share your shipment details, our operations experts will review the request for feasibility and contact you to confirm the specifics of the trip.\n\nTo finalize a booking, we require a 35% advance payment, which allows us to lock in your transport and plan the route. The remaining balance is handled at delivery. This human-led verification ensures that every shipment is booked accurately and safely. Our team will be in touch shortly to help you complete your reservation!", "interstate_operations.txt": "We certainly do! Inter-state operations are a cornerstone of our service, and we have developed a core capability in navigating the complexities of crossing state boundaries. This involves meticulous planning for border procedures, compliance documentation, and regional variations in transport regulations to ensure a lawful and smooth journey.\n\nWe don't just assume a route will be easy; we plan operational buffers and verify every corridor for safety before the wheels start turning. Our tracking system is designed to provide visibility across different regions, so you can monitor your shipment as it moves from state to state. We are committed to maintaining the highest standards of inter-state logistics for all our clients!", "order_in_transit_status.txt": "I can certainly check if your order is currently on the move! To give you a verified answer, please provide your Order ID so I can scan our live movement logs. An order is officially considered \"In Transit\" once the dispatch is confirmed and active movement begins between our origin and your destination. I want to make sure I’m giving you the facts rather than just guessing based on how much time has passed.\n\nIf the shipment is moving, I’ll be delighted to confirm that for you instantly. However, if the logs show it is currently stationary at a checkpoint, I’ll report that transparently so you have a realistic view of your shipment’s progress. We value operational accuracy above all else, so please share that ID whenever you’re ready so we can verify the status together!", "order_issue_check.txt": "I’m truly sorry if you’re having trouble with the tracking tool; I’m here to help you figure out why! Please provide your Order ID so I can diagnose the issue. Often, tracking may appear \"broken\" simply because the dispatch is still pending or there is a temporary sync delay between our transport logs and the display.\n\nRest assured that a tracking error doesn't mean there's a problem with the shipment itself—it's usually just a matter of the data being updated in our system. Once you provide the ID, I can see if there’s a confirmed technical glitch or if the records are just in a pending state. Thank you for your patience while we get this sorted out for you!", "temperature_deviation_handling.txt": "If a temperature change is detected, our monitoring systems capture the deviation immediately so that our operational teams can take action! We never ignore a fluctuation; every change is logged internally and reviewed to assess the potential impact on the quality of your seafood. This allows us to evaluate the implications and initiate any necessary corrective actions to protect your shipment.\n\nWe believe in total transparency, so we ensure that every response to a temperature deviation follows our strict internal procedures and is fully documented. No assumptions are made regarding the safety of the cargo until a thorough review is completed. By prioritizing visibility and human oversight, we ensure that our response to temperature issues is fast, accurate, and always focused on maintaining the integrity of your order!", "place_new_order.txt": "It’s wonderful to hear you're interested in working with us! To get things started, our operations team will need to review your request to ensure we have the capacity and handling requirements for your specific shipment. Once you submit your interest, one of our friendly staff members will reach out to you directly to confirm all the details.\n\nAs part of our standard booking process, we do request a 35% advance payment to allocate resources and ensure a smooth dispatch, with the remaining balance due upon delivery. Once everything is validated, you’ll receive your tracking details typically within 36 hours of the order leaving our facility. We can’t wait to help you with your transport needs!", "fleet_size_information.txt": "We manage a fleet size that is carefully balanced with our operational capacity to ensure we can always meet our commitments! While we don't disclose exact fleet numbers publicly, we have a diverse range of vehicle sizes available to handle everything from local city deliveries to long-haul inter-state transport. Our focus is always on deployment readiness and ensuring we never overcommit our resources.\n\nEach truck usage is planned per shipment, and we use a combination of maintenance and human oversight to ensure that every vehicle is available and compliant with safety standards. By scaling our capacity with demand and monitoring fleet utilization, we maintain a high level of operational integrity. This disciplined approach is what allows us to provide a reliable and consistent service for every client!", "spoilage_prevention_measures.txt": "Preventing spoilage is our top operational priority, and we achieve this through a combination of technology and disciplined handling! Our strategy relies on rigid temperature management and carefully planned transit durations that minimize any time your goods spend on the road. We use specialized vehicles and optimized route planning to ensure that freshness is preserved and that exposure to external heat is kept to an absolute minimum.\n\nOur system is designed to detect any deviations instantly, allowing our human oversight team to step in and ensure discipline is maintained. We avoid making speculative promises and instead focus on monitored spoilage indicators and standardized processes that have been refined through years of operational learning. By maintaining this level of transparency and accountability, we significantly reduce the risk of loss and protect the safety of your cargo!", "shipment_audit_process.txt": "Yes, our shipments are subject to regular audits as part of our commitment to compliance and quality! These audits involve a detailed review of our operational records and monitoring data to ensure that every process is being followed correctly. We maintain clear audit trails so that our human oversight team can evaluate our adherence to standards.\n\nWe never avoid audits; instead, we use the findings to guide improvements and address any compliance gaps. This process helps us maintain our operational discipline and ensures that we are always providing the highest level of safety and integrity. By being open to these reviews, we reinforce our accountability and ensure that our service remains consistently reliable!", "order_tracking_not_working.txt": "I’m truly sorry if you’re having trouble with the tracking tool; I’m here to help you figure out why! Please provide your Order ID so I can diagnose the issue. Often, tracking may appear \"broken\" simply because the dispatch is still pending or there is a temporary sync delay between our transport logs and the display.\n\nRest assured that a tracking error doesn't mean there's a problem with the shipment itself—it's usually just a matter of the data being updated in our system. Once you provide the ID, I can see if there’s a confirmed technical glitch or if the records are just in a pending state. Thank you for your patience while we get this sorted out for you!", "truck_types_overview.txt": "We utilize a diverse fleet of refrigerated transport vehicles that are carefully selected to match the specific needs of your shipment! Our trucks come in different sizes to handle varying cargo volumes—ranging from small vans for short-distance local deliveries to medium trucks for inter-city routes and large vehicles for long-haul transport. Every single one of them is equipped for high-precision temperature control.\n\nOur operational planning ensures that the right vehicle is assigned to the right job, taking into account safety, compliance, and feasibility. We follow food-grade standards for all our trucks and maintain them rigorously to ensure they are always ready for service. By assigning the most suitable truck for your cargo, we prioritize quality preservation and ensure that your delivery is handled with absolute consistency!", "order_delivery_confirmation.txt": "I would be so happy to confirm your delivery for you! To check the final status, please share your Order ID so I can access the handover records. An order is only marked as \"Delivered\" in our system once we have a verified receipt confirmation and physical handover logs. This ensures that we never prematurely mark a journey as complete.\n\nIf the delivery is still pending, I will show you exactly which stage it’s in to prevent any confusion. I'm sorry I can't look this up without the ID, but it’s the only way to protect your data and provide a secure, factual confirmation. Once you provide the ID, I'll check the delivery logs immediately—thank you for your cooperation!", "missing_data_guidance.txt": "If you notice that some data is missing, it’s usually because that specific update is still pending confirmation! Our system is designed not to fabricate any information, so it will show a gap until the data is verified. I recommend double-checking your Order ID to make sure it's correct and trying again in a little while.\n\nI'm sorry for the confusion, but please know that no data is ever actually lost during these pending states. If the issue persists, our official support channels are always ready to assist you further. We prioritize accuracy over speed to ensure total transparency—thank you for your patience as we finalize your shipment records!", "tracking_information_unavailable.txt": "I am sorry for the frustration if you're not seeing your tracking details yet, but this usually just means the data is still being finalized! Tracking only becomes available once the dispatch is officially confirmed and the logs are synced. If your order hasn't left our facility yet, the tracking info will not appear in our system to avoid giving you any incorrect or misleading updates.\n\nWe prioritize accuracy over speed, so we don't use placeholder data; we only show you what has been verified. I recommend checking back in a little while once the operational readiness is complete. Please have your Order ID ready so I can evaluate the status for you whenever you're ready. Thank you for your patience while we ensure your data is perfect!", "real_time_truck_tracking.txt": "Tracking for our trucks is available where the operational setup has been specifically configured for it! This tracking data is a vital tool for our team, providing shipment visibility and supporting our overall operational awareness. While we don't assume continuous tracking on every single route, we provide updates based on verified data to keep you informed.\n\nWe are always transparent about our data availability and will never show speculative tracking if the live feed is unavailable. This honesty is central to our commitment to accountability and data integrity. By using logs to record movement and prioritizing accuracy, we ensure that the visibility we provide is reliable and helps maintain the high level of trust you place in our logistics!", "food_safety_compliance_process.txt": "We ensure absolute food safety compliance through a series of highly structured and disciplined processes! This begins with handling procedures that follow defined national standards and temperature controls that are enforced without exception. We use regular monitoring and operational checks to verify that every stage of the shipment is meeting our strict safety rules.\n\nOur human oversight team reviews all compliance data and maintains documentation to support audits and verify that our transport hygiene is perfect. We log any deviations transparently and take immediate corrective action to protect consumers. By prioritizing food safety as our main goal, we maintain a level of integrity and reliability that defines our service!", "destination_city_arrival.txt": "Reaching the destination city is such a huge milestone, and I’d love to verify that for you! To see if your package has arrived at its final local hub, please provide your Order ID. Our system updates this status only after a physical scan at a delivery checkpoint, as we never want to make assumptions based on estimated travel durations.\n\nI am sorry if the arrival data hasn't popped up yet, but I’ll check the latest operational logs to see exactly where the shipment stands. If it hasn't reached the city, I will show you the current transit stage instead so you can see how close it is. We prioritize accuracy to help you plan your day, so please share that ID to get the latest confirmed update!", "refrigerated_truck_explanation.txt": "A refrigerated truck, often called a \"reefer,\" is a specialized vehicle designed specifically to maintain a stable, controlled temperature during transit! These trucks are absolutely essential for transporting perishable goods like seafood because they have active cooling systems that run continuously. This prevents spoilage and ensures that your items stay within their safe temperature range from the warehouse to your door.\n\nWe assign these vehicles with great care, and our monitoring systems ensure that the cooling performance is meeting our strict standards. Our human oversight team verifies these conditions regularly to support food safety and quality preservation. Because these trucks are core assets to our cold chain, we follow mandatory maintenance and compliance checks to ensure they remain reliable for every shipment!", "track_order_using_order_id.txt": "Thank you for providing that Order ID; I have successfully received it!\nI am now using this reference to pull data from our tracking system.\n\nEach ID is uniquely mapped to our dispatch and transport logs.\nI am currently identifying the exact stage your shipment has reached.\nThis includes checking if it is processing, in-transit, or delivered.\nMy response is generated strictly from confirmed operational data.\nI will never show you estimated or artificial updates for your package.\nThis ensures complete transparency so you know exactly what we know.\nEvery timestamp is perfectly aligned with our internal system records.\nI am processing the final details and will display your info momentarily!", "shipment_on_schedule_status.txt": "I’m excited to check if your shipment’s journey has officially begun! In our system, the \"start\" of an order is marked by the initiation of dispatch, and I’ll need your Order ID to verify those logs. We never want to tell you an order has started prematurely, so we wait for the physical dispatch confirmation before updating this milestone.\n\nIf your order is still in the pending stage, I will let you know honestly so you have an accurate picture of the timeline. This ensures that when I tell you it has started, you can be certain the transport process is truly underway. Please provide your ID, and I’ll check the dispatch records for you right now!", "operational_locations.txt": "We are proud to provide extensive logistics coverage across multiple regions and states within India! Our core capability lies in managing complex inter-state movements, where we carefully plan routes to account for regional conditions, border compliance, and safety. We evaluate every shipment route individually to ensure it meets our rigorous feasibility standards.\n\nI want to be transparent and clarify that we focus our expertise specifically within India to maintain the highest quality of service. Whether your shipment needs to travel a long distance or navigate regional constraints, we scale our capacity to meet the challenge while maintaining strict operational boundaries. We are ready to confirm service availability for your specific route as soon as you share your request!", "company_experience_history.txt": "Our company is built on a rock-solid foundation of long-standing operational experience! Over the years, we have refined our processes through countless successful shipments, evolving our knowledge to meet the most demanding industry requirements. We value this maturity because it allows us to make stable, informed decisions that protect your cargo.\n\nWe don't believe in untested shortcuts or experimental practices; instead, we rely on established workflows that have been proven through years of practice. This history of measured, controlled growth is exactly what allows us to offer such high levels of reliability today. When you work with us, you are benefiting from years of accumulated learning and a deep-rooted culture of discipline!", "long_distance_seafood_transport.txt": "Handling long-distance transport requires a high level of meticulous planning and specialized equipment! We select routes that optimize for both time and safety, and we assign large, high-capacity refrigerated trucks that can maintain stable temperatures over many days. To account for the longer journey, we build in transit buffers and maintain continuous visibility through our monitoring systems.\n\nOur operational team logs every mile of progress and performs regular compliance checks to ensure that handling remains consistent throughout the trip. We manage the unique risks of long-haul logistics by being proactive—monitoring for deviations and having corrective actions ready to go if needed. This disciplined approach ensures that your shipment remains safe and that quality is preserved, no matter how far it has to travel!", "order_status_check.txt": "I would love to get you an update on the current status of your order!\nTo provide a definitive answer, I will need your valid Order ID.\nThe \"status\" represents the officially confirmed stage of shipment.\nThis covers everything from warehouse processing to final delivery.\nI generate these updates directly from our internal operational records.\nOur system does not assume progress has been made without verification.\n\nIf your order is in transit, I will display the current route stage.\nAny delays or stoppages will be reported to you with full transparency.\nPlease provide your Order ID so I can fetch this information now.\nWithout that ID, I am unable to access the specific details for you!" };
+
+    const GREET_TRIGGERS = ['hi', 'hello', 'hey', 'how are you', 'how r u', 'how are u',
+      'what are you doing', 'wat are u doing', 'good morning', 'good afternoon',
+      'good evening', 'sup', 'whats up', "what's up", 'howdy', 'yo', 'greetings'];
+
+    const GREET_REPLIES = [
+      "Hey there! 👋 I'm TrackAssist, your 24/7 logistics assistant. I'm doing great and ready to help! Ask me about order tracking, shipments, compliance, cold chain — anything logistics!",
+      "Hello! Great to hear from you 😊 All systems are running smoothly on my end. I can help you track shipments, place orders, check compliance, and much more. What do you need today?",
+      "Hi! 🚀 I'm TrackAssist — always on duty, always tracking! I can assist with order status, cold chain logistics, FSSAI compliance, fleet info, and more. How can I help?",
+      "Hey! 👋 I'm doing well, processing thousands of shipments as we speak! Whether it's order tracking, new bookings, or compliance queries — I've got you covered. What's on your mind?",
+    ];
+
+    function isGreeting(txt) {
+      const l = txt.toLowerCase().trim();
+      return GREET_TRIGGERS.some(g => l === g || l.startsWith(g + ' ') || l.startsWith(g + '!') || l.startsWith(g + ','));
+    }
+    function greetReply() { return GREET_REPLIES[Math.floor(Math.random() * GREET_REPLIES.length)]; }
+
+    // ── SPECIAL ORDER IDs ──────────────────────────────────────────────
+    const SPECIAL_ORDERS = {
+      'ahe0719': () => {
+        const dispatch = new Date('2026-02-12T15:00:00'); // dispatched 12 Feb 2026 at 3:00 PM
+        const totalHrs = 74;
+        const eta = new Date(dispatch.getTime() + totalHrs * 60 * 60 * 1000);
+        const etaBuf = new Date(eta.getTime() + 2 * 60 * 60 * 1000); // on-or-before = ETA + 2 hrs buffer
+        const now = new Date();
+        const elapsed = Math.max(0, Math.round((now - dispatch) / (1000 * 60 * 60)));
+        const remaining = Math.max(0, totalHrs - elapsed);
+        const fmtFull = d => d.toLocaleString('en-IN', {
+          weekday: 'long', day: 'numeric', month: 'long',
+          year: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true
+        });
+        return (
+          `Hi there! 👋 We found your order — here's the full update for Order ID: AHE0719\n\n` +
+          `━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
+          `📦  Route: Chennai  →  Assam\n` +
+          `🚛  Vehicle: Fully Refrigerated Reefer Truck\n` +
+          `🌡️  Cold Chain: ACTIVE — temperature maintained end-to-end\n` +
+          `━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n` +
+          `🕒  Dispatched: ${fmtFull(dispatch)}\n` +
+          `⏱️  Time on road: ${elapsed} hour${elapsed !== 1 ? 's' : ''} and counting\n` +
+          `⏳  Remaining: approximately ${remaining} hour${remaining !== 1 ? 's' : ''}\n\n` +
+          `📅  Expected Delivery: on or before\n` +
+          `     ${fmtFull(etaBuf)}\n\n` +
+          `━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n` +
+          `ℹ️  About your delivery time:\n` +
+          `The Chennai → Assam route would normally take 57 hours non-stop. ` +
+          `However, we add scheduled rest breaks for our drivers — because their safety and well-being matter to us just as much as your delivery. ` +
+          `With these breaks factored in, the total journey time is 74 hours.\n\n` +
+          `✅  Don't worry at all — your order is completely ON TIME! 🎯\n\n` +
+          `Your cargo is riding in a fully refrigerated truck and has been maintained at the correct cold-chain temperature from the moment it left our facility. ` +
+          `It will stay perfectly refrigerated all the way until it reaches your doorstep — freshness and quality are 100% guaranteed. 🐟❄️\n\n` +
+          `We appreciate your trust in us. If you have any questions, we're always here! 🚀`
+        );
+      }
+    };
+    // ────────────────────────────────────────────────────────────────────
+
+    function findResp(input) {
+      // Check special order IDs first (exact match, case-insensitive)
+      const trimmed = input.trim().toLowerCase();
+      if (SPECIAL_ORDERS[trimmed]) return SPECIAL_ORDERS[trimmed]();
+      // Also match if order ID appears anywhere in the message
+      for (const [oid, fn] of Object.entries(SPECIAL_ORDERS)) {
+        if (input.toLowerCase().includes(oid)) return fn();
+      }
+      if (isGreeting(input)) return greetReply();
+      const low = input.toLowerCase();
+      const words = new Set(low.split(/\s+/));
+      let best = null, score = 0;
+      for (const [kw, file] of Object.entries(KWMAP)) {
+        let s = 0;
+        if (low.includes(kw)) s = Math.pow(kw.split(' ').length, 2) * 10;
+        else {
+          const kws = kw.split(' ');
+          const ov = kws.filter(w => words.has(w)).length;
+          if (ov > 0) { const r = ov / kws.length; if (r >= 0.5) s = ov * r * 5; }
+        }
+        if (s > score) { score = s; best = file; }
+      }
+      if (best && RESPS[best]) return RESPS[best];
+      return "I'm not quite sure about that. Try asking about:\n📦 Order tracking\n🚢 Shipment status\n🏢 Company services\n🐟 Seafood/cold chain logistics\n🚛 Fleet & trucks\n✅ FSSAI compliance";
+    }
+
+    const LS = {
+      getHist: () => { try { return JSON.parse(localStorage.getItem('ta_hist') || '[]'); } catch { return []; } },
+      setHist: (h) => { try { localStorage.setItem('ta_hist', JSON.stringify(h)); } catch { } },
+      getSet: () => { try { return JSON.parse(localStorage.getItem('ta_set') || '{}'); } catch { return {}; } },
+      setSet: (s) => { try { localStorage.setItem('ta_set', JSON.stringify(s)); } catch { } },
+    };
+
+    function App() {
+      const [view, setView] = useState('chat');
+      const [msgs, setMsgs] = useState([]);
+      const [inp, setInp] = useState('');
+      const [typing, setTyping] = useState(false);
+      const [started, setStarted] = useState(false);
+      const [hist, setHist] = useState(LS.getHist);
+      const [settings, setSettings] = useState(() => ({ dark: true, ...LS.getSet() }));
+      const [hDetail, setHDetail] = useState(null);
+      const endRef = useRef(null);
+      const taRef = useRef(null);
+
+      useEffect(() => { endRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [msgs, typing]);
+      useEffect(() => { LS.setSet(settings); }, [settings]);
+      useEffect(() => { LS.setHist(hist); }, [hist]);
+
+      const now = () => new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+      const addBot = (text) => setMsgs(p => [...p, { r: 'bot', text, t: now() }]);
+
+      const send = () => {
+        const txt = inp.trim(); if (!txt) return;
+        if (!started) setStarted(true);
+        const um = { r: 'user', text: txt, t: now() };
+        setMsgs(p => [...p, um]);
+        setInp('');
+        if (taRef.current) { taRef.current.style.height = 'auto'; }
+        setTyping(true);
+        setTimeout(() => {
+          const resp = findResp(txt);
+          const bm = { r: 'bot', text: resp, t: now() };
+          setMsgs(p => [...p, bm]);
+          setHist(h => {
+            const e = { id: Date.now(), q: txt, a: resp, ts: new Date().toLocaleString(), msgs: [um, bm] };
+            return [e, ...h].slice(0, 60);
+          });
+          setTyping(false);
+        }, 700 + Math.random() * 500);
+      };
+
+      const onKey = (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); } };
+
+      // sendDirect: avoids stale-closure bug when chips/cards set state then call send()
+      const sendDirect = (txt) => {
+        if (!txt.trim()) return;
+        if (!started) setStarted(true);
+        const um = { r: 'user', text: txt.trim(), t: now() };
+        setMsgs(p => [...p, um]);
+        setInp('');
+        if (taRef.current) { taRef.current.style.height = 'auto'; }
+        setTyping(true);
+        setTimeout(() => {
+          const resp = findResp(txt.trim());
+          const bm = { r: 'bot', text: resp, t: now() };
+          setMsgs(p => [...p, bm]);
+          setHist(h => {
+            const e = { id: Date.now(), q: txt.trim(), a: resp, ts: new Date().toLocaleString(), msgs: [um, bm] };
+            return [e, ...h].slice(0, 60);
+          });
+          setTyping(false);
+        }, 700 + Math.random() * 500);
+      };;
+      const clearChat = () => { setMsgs([]); setStarted(false); };
+      const toggle = (k) => setSettings(s => ({ ...s, [k]: !s[k] }));
+
+      const chips = ['Track my order', 'Order status', 'Place new order', 'FSSAI compliance', 'Seafood transport', 'Cold chain'];
+      const actions = [
+        { icon: '📦', lbl: 'Track Shipment', dsc: 'Real-time tracking', q: 'Track my order' },
+        { icon: '💬', lbl: 'Get Quote', dsc: 'Pricing & estimates', q: 'How to place order' },
+        { icon: '🛡️', lbl: 'Compliance', dsc: 'FSSAI & regulations', q: 'FSSAI compliance' },
+        { icon: '🌡️', lbl: 'Cold Chain', dsc: 'Temperature logistics', q: 'Cold chain logistics' },
+      ];
+
+      return (
+        <div className={"app" + (settings.dark ? '' : ' light')}>
+          {/* SIDEBAR */}
+          <aside className="sb">
+            <div className="sb-logo" onClick={() => setView('chat')}>
+              <img src={LOGO} alt="logo" />
+            </div>
+            <NB icon="💬" tip="Chat" on={view === 'chat'} onClick={() => setView('chat')} />
+            <NB icon="📊" tip="Analytics" on={view === 'analytics'} onClick={() => setView('analytics')} />
+            <NB icon="⚙️" tip="Settings" on={view === 'settings'} onClick={() => setView('settings')} />
+            <div className="sp" />
+            <NB icon="🗑️" tip="Clear Chat" onClick={clearChat} />
+            <NB icon="⏻" tip="Log Out" red onClick={() => alert('Logged out!')} />
+          </aside>
+
+          {/* MAIN */}
+          <div className="main">
+            <div className="sweep" />
+
+            {/* HEADER */}
+            <header className="hdr">
+              <div className="hdr-l">
+                <img className="hdr-logo" src={LOGO} alt="logo" />
+                <div>
+                  <div className="hdr-name">TrackAssist</div>
+                  <div className="hdr-sub">AI Chatbot</div>
+                </div>
+              </div>
+              <div className="hdr-r">
+                <div className="badge">Active Shipments: <b>43</b></div>
+                {view === 'chat' && <button className="clr-btn" onClick={clearChat}>Clear Chat</button>}
+                <button className="back-btn" onClick={() => { window.history.length > 1 ? window.history.back() : window.location.href = '../index.html'; }} title="Back to Customer Portal"> {/* B-10: relative nav, not hardcoded localhost */}
+                  &#8592; Back
+                </button>
+              </div>
+            </header>
+
+            {/* ── CHAT VIEW ── */}
+            {view === 'chat' && (
+              <div className="view">
+                {!started ? (
+                  <div className="welcome">
+                    <div className="globe-wrap">
+                      <div className="globe-ring"><img src={LOGO} alt="TrackAssist" style={{ width: '72px', height: '72px', objectFit: 'cover', borderRadius: '50%' }} /></div>
+                      <div className="globe-dot" />
+                    </div>
+                    <div className="ws">Active Shipments: <b>43</b></div>
+                    <div className="wt">Welcome to TrackAssist</div>
+                    <div className="wd">AI-powered logistics assistant. Track orders, manage shipments, and get instant compliance answers.</div>
+                    <div className="agrid">
+                      {actions.map((a, i) => (
+                        <div key={i} className="acard" onClick={() => sendDirect(a.q)}>
+                          <div className="aicon">{a.icon}</div>
+                          <div><div className="albl">{a.lbl}</div><div className="adsc">{a.dsc}</div></div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="chat-scroll">
+                    {msgs.map((m, i) => (
+                      <div key={i} className={"msg " + m.r}>
+                        <div className="av">
+                          {m.r === 'bot'
+                            ? <img src={LOGO} alt="bot" />
+                            : <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" width="28" height="28"><circle cx="18" cy="18" r="18" fill="#1a2e42" /><circle cx="18" cy="14" r="6" fill="#3a6080" /><path d="M6 30c0-6.627 5.373-12 12-12s12 5.373 12 12" fill="#3a6080" /></svg>
+                          }
+                        </div>
+                        <div className="bbl-wrap">
+                          <div className="bbl">{m.text}</div>
+                          <div className="mt">{m.t}</div>
+                        </div>
+                      </div>
+                    ))}
+                    {typing && (
+                      <div className="typing">
+                        <div className="av"><img src={LOGO} alt="bot" /></div>
+                        <div className="typing-bbl">
+                          <div className="td" /><div className="td" /><div className="td" />
+                        </div>
+                      </div>
+                    )}
+                    <div ref={endRef} />
+                  </div>
+                )}
+                <div className="chips">
+                  {chips.map((c, i) => (
+                    <div key={i} className="chip"
+                      onClick={() => sendDirect(c)}>
+                      {c}
+                    </div>
+                  ))}
+                </div>
+                <div className="ibar">
+                  <div className="iwrap">
+                    <textarea ref={taRef} className="inp" rows="1"
+                      placeholder="Type your question or tracking number..."
+                      value={inp}
+                      onChange={e => { setInp(e.target.value); e.target.style.height = 'auto'; e.target.style.height = Math.min(e.target.scrollHeight, 130) + 'px'; }}
+                      onKeyDown={onKey} />
+                    <button className="sbtn" onClick={send}>
+                      <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* ── ANALYTICS / HISTORY VIEW ── */}
+            {view === 'analytics' && (
+              <div className="panel">
+                <div className="ptitle">Chat History</div>
+                {hDetail ? (
+                  <>
+                    <button className="hbk" onClick={() => setHDetail(null)}>← Back</button>
+                    <div style={{ fontSize: 11, color: 'var(--txt3)', marginBottom: 14, fontFamily: 'Rajdhani', letterSpacing: 1 }}>{hDetail.ts}</div>
+                    <div className="hd-box">
+                      {hDetail.msgs.map((m, i) => (
+                        <div key={i} className="hd-msg">
+                          <div className="hd-who">{m.r === 'user' ? 'You' : 'TrackAssist'}</div>
+                          <div className="hd-text">{m.text}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </>
+                ) : hist.length === 0 ? (
+                  <div className="empty">
+                    <div className="empty-i">📭</div>
+                    <div>No chat history yet</div>
+                    <div style={{ fontSize: 11, marginTop: 6, color: 'var(--txt3)' }}>Start chatting to see history here</div>
+                  </div>
+                ) : (
+                  <>
+                    {hist.map(h => (
+                      <div key={h.id} className="hi" onClick={() => setHDetail(h)}>
+                        <button className="hi-del" onClick={e => { e.stopPropagation(); setHist(p => p.filter(x => x.id !== h.id)) }}>Delete</button>
+                        <div className="hi-q">{h.q}</div>
+                        <div className="hi-meta">{h.ts}</div>
+                        <div className="hi-prev">{h.a}</div>
+                      </div>
+                    ))}
+                    <button className="logout-btn" style={{ marginTop: 16 }} onClick={() => { if (window.confirm('Delete all history?')) { setHist([]); LS.setHist([]); } }}>
+                      🗑️ &nbsp;Delete All History
+                    </button>
+                  </>
+                )}
+              </div>
+            )}
+
+            {/* ── SETTINGS VIEW ── */}
+            {view === 'settings' && (
+              <div className="panel">
+                <div className="ptitle">Settings</div>
+
+                <div className="sgrp">
+                  <div className="sgrp-lbl">Appearance</div>
+                  <div className="srow">
+                    <div>
+                      <div className="srow-lbl">Dark Theme</div>
+                      <div className="srow-sub">Toggle dark / light mode</div>
+                    </div>
+                    <button className={"tog" + (settings.dark ? ' on' : '')} onClick={() => toggle('dark')} />
+                  </div>
+                </div>
+
+                <div className="sgrp">
+                  <div className="sgrp-lbl">Chat Management</div>
+                  <div className="srow">
+                    <div>
+                      <div className="srow-lbl">Clear Current Chat</div>
+                      <div className="srow-sub">Remove all messages in active session</div>
+                    </div>
+                    <button className="act-btn cl" onClick={() => { clearChat(); }}>Clear</button>
+                  </div>
+                  <div className="srow">
+                    <div>
+                      <div className="srow-lbl">Delete All History</div>
+                      <div className="srow-sub">Permanently remove all previous conversations</div>
+                    </div>
+                    <button className="act-btn cl" onClick={() => { if (window.confirm('Delete all history?')) { setHist([]); LS.setHist([]); } }}>Delete All</button>
+                  </div>
+                </div>
+
+                <div className="sgrp">
+                  <div className="sgrp-lbl">Account</div>
+                  <button className="logout-btn" onClick={() => alert('Logged out!')}>⏻ &nbsp;Log Out</button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    }
+
+    function NB({ icon, tip, on, onClick, red }) {
+      return (
+        <button className={"nb" + (on ? ' on' : '') + (red ? ' red' : '')} onClick={onClick}>
+          {icon}<span className="tip">{tip}</span>
+        </button>
+      );
+    }
+
+    ReactDOM.render(<App />, document.getElementById('root'));
+  </script>
+</body>
+
+</html>

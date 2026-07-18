@@ -1,0 +1,11 @@
+Dispatch is a major milestone, and I’m excited to check that for you!
+An order is officially "Dispatched" only after the handover to transport.
+
+To see if your items have reached this stage, I need your Order ID.
+I check the status by looking directly into our internal warehouse logs.
+We never assume an order has been sent just because of time passed.
+Once dispatch is confirmed, it is instantly reflected in your status.
+Dispatch confirmation includes vehicle assignment and route initiation.
+No provisional or estimated dispatch updates will ever be shown.
+Please provide your valid Order ID now to verify the records.
+Once you share the ID, I will retrieve the latest record for you!

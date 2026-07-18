@@ -1,0 +1,3 @@
+I’d love to help you plan ahead by providing an estimated time of arrival for your order! To retrieve this info, please share your Order ID so I can look at the planned transit duration. Our system calculates the ETA based on normal conditions and verified dispatch data, ensuring that the window we give you is as realistic as possible.
+
+I am sorry that I can't provide a speculative guess without your ID, as we prefer accuracy over rough estimates that might create false expectations. If operational factors like traffic or weather cause a change, the ETA will be revised in our logs to keep you informed. Simply share your ID, and I will fetch the most up-to-date arrival timeline for your planning!

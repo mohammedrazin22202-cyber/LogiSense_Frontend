@@ -1,0 +1,3 @@
+I’d be delighted to pull up a full summary of your order for you! To access your shipment reference, route, and current status, I just need you to provide a valid Order ID. Each ID is uniquely mapped to a specific record, and I want to make sure I’m showing you the most up-to-date and verified information from our internal data.
+
+I’m sorry for the extra security step, but this design ensures your data stays protected and that no partial or assumed information is ever displayed. Once you enter the ID, I can instantly show you the origin, destination, and current transit stage of your shipment. I’m standing by and ready to retrieve those details for you as soon as you’re ready!

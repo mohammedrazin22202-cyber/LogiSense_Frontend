@@ -1,0 +1,3 @@
+I’m sorry about that! An incorrect Order ID won't be able to pull up any data because our system validates every entry strictly against our verified records. This is actually a safety feature to ensure that no mismatched information is ever displayed. I recommend carefully re-checking your ID for any small typing errors or transposed numbers.
+
+Incorrect IDs don’t affect your actual order in any way, so don't worry about any data being altered. Once you have the correct Order ID ready, please re-enter it, and I will validate it for you immediately. We prioritize accuracy and security above all else—thank you for your cooperation and for trying again!

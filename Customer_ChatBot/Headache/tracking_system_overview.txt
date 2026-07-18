@@ -1,0 +1,3 @@
+Our tracking system is built on a foundation of verified operational data to ensure you only see the truth! It maps each unique Order ID to a specific shipment record and only begins showing updates once dispatch is officially confirmed. We don't assume progress; we only display the status and location that have been physically logged at our checkpoints.
+
+This approach prioritizes accuracy over frequency, meaning we never generate artificial or "guessed" data. If info is pending, it’s because our team is verifying the latest movement to maintain total integrity. Our system is designed to provide you with a reliable, transparent, and secure way to monitor your shipment from start to finish!

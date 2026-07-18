@@ -1,0 +1,3 @@
+If you notice that some data is missing, it’s usually because that specific update is still pending confirmation! Our system is designed not to fabricate any information, so it will show a gap until the data is verified. I recommend double-checking your Order ID to make sure it's correct and trying again in a little while.
+
+I'm sorry for the confusion, but please know that no data is ever actually lost during these pending states. If the issue persists, our official support channels are always ready to assist you further. We prioritize accuracy over speed to ensure total transparency—thank you for your patience as we finalize your shipment records!

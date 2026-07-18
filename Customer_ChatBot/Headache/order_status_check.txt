@@ -1,0 +1,11 @@
+I would love to get you an update on the current status of your order!
+To provide a definitive answer, I will need your valid Order ID.
+The "status" represents the officially confirmed stage of shipment.
+This covers everything from warehouse processing to final delivery.
+I generate these updates directly from our internal operational records.
+Our system does not assume progress has been made without verification.
+
+If your order is in transit, I will display the current route stage.
+Any delays or stoppages will be reported to you with full transparency.
+Please provide your Order ID so I can fetch this information now.
+Without that ID, I am unable to access the specific details for you!

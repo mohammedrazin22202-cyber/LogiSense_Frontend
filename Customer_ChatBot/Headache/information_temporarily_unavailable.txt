@@ -1,0 +1,3 @@
+Information can be unavailable when our internal confirmation is still pending! We believe in only showing factual, verified data, so if the dispatch hasn't been finalized or the logs haven't synced, the system will keep the info hidden. This prevents incorrect updates and ensures that when you do see information, you can trust it 100%.
+
+I apologize for any delay, but please keep in mind that this is part of our commitment to operational trust. If you have your Order ID handy, please share it with me so I can check if your info is in a pending state. We recommend rechecking in a little while once the confirmed data is ready—thank you for your patience!

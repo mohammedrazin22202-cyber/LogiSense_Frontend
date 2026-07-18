@@ -1,0 +1,3 @@
+I understand it can be frustrating to see a "data not available" message, but this typically just means your update is currently in the queue! To see what's happening behind the scenes, please share your Order ID. This status often appears during the early processing stages or when our system is waiting for a fresh sync from the road.
+
+We intentionally avoid showing estimated or fabricated values to maintain your trust, so we only display data once it's been confirmed by our operations team. If your information is still pending, I will let you know and recommend checking back in a short while. Please provide your ID so I can verify the current state of your records for you!
