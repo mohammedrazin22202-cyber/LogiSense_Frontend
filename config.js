@@ -10,4 +10,4 @@
  * any business logic in script.js.
  * ────────────────────────────────────────────────────────────────────────────
  */
-window.FLEET_API_BASE = 'https://logisense-backend-srcz.onrender.com';
+window.FLEET_API_BASE = 'http://localhost:1995';
