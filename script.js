@@ -13,7 +13,7 @@ const API_BASE = (typeof window !== 'undefined' && window.FLEET_API_BASE)
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 // B-03: ADMIN_CREDS removed — auth is now validated server-side via /api/admin/auth
-const SEA_TRUCKS = new Set(['OFE-TRK-001', 'OFE-TRK-004', 'OFE-TRK-012']); // #13
+const SEA_TRUCKS = new Set([]); // sea option completely removed
 const SHIPMENTS_PER_PAGE = 10; // #12
 
 // Driver score events used for scoring system (#10)
@@ -238,14 +238,6 @@ function renderMapVehicles() {
         const isAtSea = !hasDriverGps && SEA_TRUCKS.has(v.id);
         // Use real GPS coords for driver-broadcasting vehicles; hardcoded sea pos otherwise
         let lat = v.current_lat, lng = v.current_lng;
-        if (isAtSea) {
-            const seaPositions = {
-                'OFE-TRK-001': [10.5, 79.5],
-                'OFE-TRK-004': [14.2, 73.8],
-                'OFE-TRK-012': [8.9, 77.2],
-            };
-            [lat, lng] = seaPositions[v.id] || [lat, lng];
-        }
         const latlng = [lat, lng];
         if (!State.trailData[v.id]) State.trailData[v.id] = [];
         const trail = State.trailData[v.id];
@@ -294,10 +286,8 @@ function selectVehicle(id) {
     const v = State.vehicles[id];
     const hasDriverGps = State.driverGpsVehicles.has(id);
     const isAtSea = !hasDriverGps && SEA_TRUCKS.has(id);
-    const seaLats = { 'OFE-TRK-001': 10.5, 'OFE-TRK-004': 14.2, 'OFE-TRK-012': 8.9 };
-    const seaLngs = { 'OFE-TRK-001': 79.5, 'OFE-TRK-004': 73.8, 'OFE-TRK-012': 77.2 };
-    const lat = isAtSea ? seaLats[id] : v?.current_lat;
-    const lng = isAtSea ? seaLngs[id] : v?.current_lng;
+    const lat = v?.current_lat;
+    const lng = v?.current_lng;
     if (lat && lng) State.map.setView([lat, lng], 12);
     updateVehicleModal(id);
     document.querySelectorAll('.vehicle-item').forEach(el => el.classList.toggle('selected', el.dataset.vid === id));
@@ -1375,12 +1365,8 @@ function selectLoginType(type) {
     document.getElementById('customerForm').style.display = type === 'customer' ? 'block' : 'none';
 
     if (type === 'admin') {
-        // B-03: No longer auto-fill from frontend constants — user must type credentials
-        // Clear fields so the user enters them manually
-        const user = document.getElementById('adminUser');
-        const pass = document.getElementById('adminPass');
-        if (user) user.value = '';
-        if (pass) pass.value = '';
+        // B-03 code removed to allow the HTML autofill to persist
+        // We do not clear the user and pass fields anymore.
         document.querySelectorAll('#pinBoxes .otp-box').forEach(b => b.value = '');
         document.querySelectorAll('#otpBoxes .otp-box').forEach(b => b.value = '');
 
@@ -1509,12 +1495,12 @@ async function doAdminLogin(method) {
 function switchCustAuthTab(tab) {
     document.getElementById('custAuthTrack').style.display = tab === 'track' ? 'block' : 'none';
     document.getElementById('custAuthAccount').style.display = tab === 'login' ? 'block' : 'none';
-    
+
     document.getElementById('custTabTrack').style.color = tab === 'track' ? '#00bfff' : '#888';
     document.getElementById('custTabTrack').style.borderBottomColor = tab === 'track' ? '#00bfff' : 'transparent';
     document.getElementById('custTabLogin').style.color = tab === 'login' ? '#00bfff' : '#888';
     document.getElementById('custTabLogin').style.borderBottomColor = tab === 'login' ? '#00bfff' : 'transparent';
-    
+
     document.getElementById('customerError').style.display = 'none';
 }
 
@@ -1529,7 +1515,7 @@ async function doCustomerAuth(action) {
     errEl.style.display = 'none';
     let payload = {};
     let endpoint = '';
-    
+
     if (action === 'signup') {
         payload = {
             name: document.getElementById('custNewName').value.trim(),
@@ -1544,25 +1530,25 @@ async function doCustomerAuth(action) {
         };
         endpoint = `${API_BASE}/api/customer/auth`;
     }
-    
+
     try {
         const res = await fetch(endpoint, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
         });
-        
+
         const data = await res.json();
         if (!data.success) {
             errEl.textContent = data.error || 'Authentication failed';
             errEl.style.display = 'block';
             return;
         }
-        
+
         currentRole = 'customer';
         State.currentUserType = 'customer_account';
         State.customerUserData = data.data; // Stores account details
-        
+
         document.getElementById('loginScreen').style.display = 'none';
         document.getElementById('customerView').style.display = 'flex';
         showCustTab('book'); // Send them to book shipment tab by default!
@@ -1641,7 +1627,7 @@ function renderLiveMap() {
     const order = State.custOrderData;
     if (order) {
         const v = State.vehicles ? State.vehicles[order.vehicle_id] : null;
-        const SEA_POS = { 'OFE-TRK-001': [10.5, 79.5], 'OFE-TRK-004': [14.2, 73.8], 'OFE-TRK-012': [8.9, 77.2] };
+        const SEA_POS = {};
         const isAtSea = typeof SEA_TRUCKS !== 'undefined' && SEA_TRUCKS.has(order.vehicle_id);
         const [mlat, mlng] = SEA_POS[order.vehicle_id] || [v?.current_lat || 15, v?.current_lng || 78];
         if (State.custMarker) State.custMap.removeLayer(State.custMarker);
@@ -2214,7 +2200,7 @@ function renderShipmentHistory() {
         );
     }
     records.push(...pastOrders);
-    
+
     if (records.length === 0) {
         el.innerHTML = `<div style="color:var(--text-muted);font-size:12px;padding:16px 0;text-align:center">No shipment history available. Book one from the Book Shipment tab.</div>`;
         return;
@@ -2848,10 +2834,10 @@ async function loadDriverDropdown() {
         if (!res.ok) return;
         const data = await res.json();
         const vehicles = data.data || data.vehicles || [];
-        
+
         // Clear previous options except first one
         select.innerHTML = '<option value="">-- Select Available Driver --</option>';
-        
+
         vehicles.forEach(v => {
             if (v.driver_name) {
                 const opt = document.createElement('option');
@@ -2873,12 +2859,12 @@ function setupDriverSelectListener() {
     const select = document.getElementById('driverSelect');
     if (!select || select.dataset.listenerAttached === 'true') return;
     select.dataset.listenerAttached = 'true';
-    
+
     select.addEventListener('change', () => {
         const val = select.value;
         const errEl = document.getElementById('driverError');
         if (errEl) errEl.style.display = 'none';
-        
+
         if (!val) {
             document.getElementById('driverVehicleId').value = '';
             document.getElementById('driverContact').value = '';
@@ -2886,15 +2872,15 @@ function setupDriverSelectListener() {
             document.querySelectorAll('#driverOtpBoxes .otp-box').forEach(b => b.value = '');
             return;
         }
-        
+
         try {
             const info = JSON.parse(val);
             document.getElementById('driverVehicleId').value = info.id;
-            
+
             // Format/strip contact
             let contact = info.contact || '';
             document.getElementById('driverContact').value = contact;
-            
+
             // Pre-fill PIN: default is last 4 digits of contact number
             let digits = contact.replace(/\D/g, '');
             let pinVal = '';
@@ -2906,7 +2892,7 @@ function setupDriverSelectListener() {
             const pinBoxes = document.querySelectorAll('#driverPinBoxes .otp-box');
             const pinDigits = pinVal.split('');
             pinBoxes.forEach((b, i) => b.value = pinDigits[i] || '');
-            
+
             // Pre-fill OTP if already generated
             if (DriverState.otpCode) {
                 const otpBoxes = document.querySelectorAll('#driverOtpBoxes .otp-box');
@@ -2929,7 +2915,7 @@ selectLoginType = function (type) {
         // hide admin & customer
         document.getElementById('adminForm').style.display = 'none';
         document.getElementById('customerForm').style.display = 'none';
-        
+
         loadDriverDropdown();
         setupDriverSelectListener();
     }
@@ -2978,7 +2964,7 @@ function sendDriverOtp() {
     document.getElementById('driverOtpStep1').style.display = 'none';
     document.getElementById('driverOtpStep2').style.display = '';
     showToast(`Demo OTP: ${DriverState.otpCode}`, 'info', 15000);
-    
+
     // Auto-fill generated OTP boxes
     const otpBoxes = document.querySelectorAll('#driverOtpBoxes .otp-box');
     const otpDigits = DriverState.otpCode.split('');
@@ -2990,7 +2976,7 @@ function resetDriverOtp() {
     document.querySelectorAll('#driverOtpBoxes .otp-box').forEach(b => b.value = '');
     document.querySelectorAll('#driverOtpBoxes .otp-box')[0]?.focus();
     showToast(`New OTP: ${DriverState.otpCode}`, 'info', 15000);
-    
+
     // Auto-fill generated OTP boxes
     const otpBoxes = document.querySelectorAll('#driverOtpBoxes .otp-box');
     const otpDigits = DriverState.otpCode.split('');
