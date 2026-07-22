@@ -8135,7 +8135,44 @@ function acceptDisclaimer() {
         disclaimer.classList.add('fade-out');
         setTimeout(() => {
             disclaimer.style.display = 'none';
+            disclaimer.classList.remove('fade-out');
         }, 400);
     }
     sessionStorage.setItem('disclaimer-accepted', 'true');
+    
+    if (typeof window.onDisclaimerAccepted === 'function') {
+        window.onDisclaimerAccepted();
+        window.onDisclaimerAccepted = null;
+    }
+}
+
+function showAppWithDisclaimer(appElementId, callback) {
+    const showApp = () => {
+        const appEl = document.getElementById(appElementId);
+        if (appEl) {
+            appEl.style.display = appElementId === 'adminApp' ? 'block' : 'flex';
+        }
+        if (typeof callback === 'function') callback();
+    };
+
+    if (sessionStorage.getItem('disclaimer-accepted') !== 'true') {
+        const disclaimer = document.getElementById('demoDisclaimer');
+        if (disclaimer) {
+            disclaimer.style.display = 'flex';
+            window.onDisclaimerAccepted = showApp;
+        } else {
+            showApp();
+        }
+    } else {
+        showApp();
+    }
+}
+
+function showDisclaimerModal() {
+    const disclaimer = document.getElementById('demoDisclaimer');
+    if (disclaimer) {
+        disclaimer.style.display = 'flex';
+        window.onDisclaimerAccepted = null;
+    }
+    closeSettings();
 }
