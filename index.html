@@ -46,6 +46,13 @@
                             <p>Advanced admin features and database writes are simulated.</p>
                         </div>
                     </div>
+                    <div class="disclaimer-info-card" style="grid-column: span 2;">
+                        <div class="dic-icon"><i class="fas fa-info-circle"></i></div>
+                        <div class="dic-content">
+                            <h4>Limited Features</h4>
+                            <p>Some advanced features are limited because this is a demo version.</p>
+                        </div>
+                    </div>
                 </div>
                 
                 <p class="disclaimer-footer-text">LOGISENSE 360 • DEMO SANDBOX</p>
@@ -56,11 +63,6 @@
             </button>
         </div>
     </div>
-    <script>
-        if (sessionStorage.getItem('disclaimer-accepted') !== 'true') {
-            document.getElementById('demoDisclaimer').style.display = 'flex';
-        }
-    </script>
 
     <!-- ═══════════ LOGIN SCREEN ═══════════ -->
     <div id="loginScreen" class="login-screen">
@@ -2116,6 +2118,9 @@
                     <div class="sp-row">
                         <div class="sp-row-left"><i class="fas fa-database"></i><span id="spVehicleCount">—
                                 trucks</span></div>
+                    </div>
+                    <div class="sp-row" onclick="showDisclaimerModal()" style="cursor:pointer">
+                        <div class="sp-row-left"><i class="fas fa-exclamation-triangle"></i><span>View Disclaimer</span></div>
                     </div>
                 </div>
             </div>
