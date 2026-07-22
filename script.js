@@ -1487,8 +1487,9 @@ async function doAdminLogin(method) {
 
     currentRole = 'admin';
     document.getElementById('loginScreen').style.display = 'none';
-    document.getElementById('adminApp').style.display = 'block';
-    initAdminApp();
+    showAppWithDisclaimer('adminApp', () => {
+        initAdminApp();
+    });
 }
 
 // Customer Account & Authentication
