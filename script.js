@@ -3042,12 +3042,12 @@ async function doDriverLogin(mode) {
         DriverState.shiftStatus = 'off_duty';
 
         document.getElementById('loginScreen').style.display = 'none';
-        document.getElementById('driverView').style.display = 'flex';
-        populateDriverView(data.data);
-        initDriverGPS();
-        updateShiftUI();
-
-        setTimeout(() => checkDriverVehicleCompliance(vehicleId), 800);
+        showAppWithDisclaimer('driverView', () => {
+            populateDriverView(data.data);
+            initDriverGPS();
+            updateShiftUI();
+            setTimeout(() => checkDriverVehicleCompliance(vehicleId), 800);
+        });
     } catch (e) {
         if (errEl) { errEl.textContent = 'Server error. Try again.'; errEl.style.display = 'block'; }
     } finally {
