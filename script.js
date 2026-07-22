@@ -1551,8 +1551,9 @@ async function doCustomerAuth(action) {
         State.customerUserData = data.data; // Stores account details
 
         document.getElementById('loginScreen').style.display = 'none';
-        document.getElementById('customerView').style.display = 'flex';
-        showCustTab('book'); // Send them to book shipment tab by default!
+        showAppWithDisclaimer('customerView', () => {
+            showCustTab('book'); // Send them to book shipment tab by default!
+        });
     } catch (e) {
         console.error(e);
         errEl.textContent = 'Server error. Try again.';
@@ -1577,8 +1578,9 @@ async function doCustomerLogin() {
         currentRole = 'customer';
         State.custOrderData = order;
         document.getElementById('loginScreen').style.display = 'none';
-        document.getElementById('customerView').style.display = 'flex';
-        renderCustomerDetails(order);
+        showAppWithDisclaimer('customerView', () => {
+            renderCustomerDetails(order);
+        });
     } catch (e) { errEl.textContent = 'Server error. Try again.'; errEl.style.display = 'block'; }
 }
 
