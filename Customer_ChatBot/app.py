@@ -9,6 +9,13 @@ from flask_cors import CORS
 import openpyxl
 import os
 import json
+import sys
+
+# Fix Windows console encoding (prevents UnicodeEncodeError when printing emojis)
+if sys.platform == "win32":
+    import io as _io
+    sys.stdout = _io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8", errors="replace")
+    sys.stderr = _io.TextIOWrapper(sys.stderr.buffer, encoding="utf-8", errors="replace")
 
 app = Flask(__name__)
 CORS(app)
