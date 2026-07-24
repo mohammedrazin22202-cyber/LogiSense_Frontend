@@ -116,8 +116,9 @@ class TrackAssistBackend:
         return None, [], 0.0
 
 # Initialize backend
-RESPONSES_DIR = './Headache'
-KEYWORDS_FILE = './kword.xlsx'
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+RESPONSES_DIR = os.path.join(BASE_DIR, 'Headache')
+KEYWORDS_FILE = os.path.join(BASE_DIR, 'kword.xlsx')
 
 # Try alternate paths
 
