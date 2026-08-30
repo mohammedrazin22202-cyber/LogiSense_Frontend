@@ -1641,6 +1641,11 @@ select:focus {
     background: #0a0f14;
 }
 
+/* Invert map tiles for dark mode */
+html:not([data-theme="light"]) .leaflet-tile {
+    filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%);
+}
+
 .leaflet-popup-content-wrapper {
     background: var(--bg-panel) !important;
     color: var(--text-primary) !important;
