@@ -1620,10 +1620,8 @@ function showCustTab(tab) {
 function renderLiveMap() {
     if (!State.custMap) {
         State.custMap = L.map('custMap', { zoomControl: true, attributionControl: false }).setView([15, 78], 6);
-        const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
-        L.tileLayer(isDark ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
-            : 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
-            { maxZoom: 19 }).addTo(State.custMap);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+            { maxZoom: 19, attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors' }).addTo(State.custMap);
     }
     const order = State.custOrderData;
     if (order) {
@@ -3515,8 +3513,8 @@ function initDriverMap() {
     const el = document.getElementById('driverMap');
     if (!el) return;
     const map = L.map('driverMap', { zoomControl: false, attributionControl: false });
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-        maxZoom: 19, subdomains: 'abcd'
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19, attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(map);
     L.control.zoom({ position: 'bottomright' }).addTo(map);
     map.setView([20.5937, 78.9629], 5); // default India center
