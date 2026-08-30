@@ -200,11 +200,9 @@ function updateAlertBadge() {
 function initMap() {
     if (State.map) return;
     State.map = L.map('map', { zoomControl: false, attributionControl: false }).setView([18.0, 78.5], 6);
-    const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
     State.tileLayer = L.tileLayer(
-        isDark ? 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png'
-            : 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
-        { maxZoom: 19, attribution: '' }
+        'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+        { maxZoom: 19, attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors' }
     ).addTo(State.map);
 }
 
