@@ -189,9 +189,10 @@ function updateSidebarStats() {
 }
 function updateAlertBadge() {
     const unread = State.alerts.filter(a => !a.acknowledged).length;
-    const badge = document.getElementById('alertBadge'), navBadge = document.getElementById('alertsNavBadge');
+    const badge = document.getElementById('alertBadge');
+    const navBadge = document.getElementById('notifNavBadge') || document.getElementById('alertsNavBadge');
     if (badge) { badge.style.display = unread > 0 ? 'flex' : 'none'; badge.textContent = unread; }
-    if (navBadge) { navBadge.style.display = unread > 0 ? 'inline' : 'none'; navBadge.textContent = unread; }
+    if (navBadge) { navBadge.style.display = unread > 0 ? 'inline-block' : 'none'; navBadge.textContent = unread; }
     const drop = document.getElementById('alertDropdown');
     if (drop && drop.style.display !== 'none') renderAlertDropdown();
 }
@@ -928,6 +929,16 @@ async function loadLogs() {
 
 // ── Navigation ────────────────────────────────────────────────────────────────
 function showPage(name) {
+    if (name === 'alerts') {
+        showPage('notif-hub');
+        switchNotifTab('alerts');
+        return;
+    }
+    if (name === 'fleet-registry') {
+        showPage('fleet');
+        switchFleetTab('registry');
+        return;
+    }
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     document.querySelectorAll('.nav-link').forEach(l => l.classList.toggle('active', l.dataset.page === name));
     const pg = document.getElementById(`${name}-page`); if (pg) pg.classList.add('active');
@@ -938,15 +949,12 @@ function showPage(name) {
     switch (name) {
         case 'tracking': if (!State.map) initMap(); renderVehiclePanel(); renderMapVehicles(); break;
         case 'fleet': renderFleetTable(); switchFleetTab('vehicles'); break;
-        case 'fleet-registry': renderFleetTable(); switchFleetTab('registry'); break;
-        // Features 6-15
-        // Features 16-25
+        case 'warehouse': switchWarehouseTab('warehouses'); break;
         case 'customers': switchCustomersTab('customers'); break;
         case 'staff': switchStaffTab('staff'); break;
-        // Existing pages
+        case 'notif-hub': switchNotifTab('hub'); break;
         case 'shipments': loadShipments(1); break;
     }
-
 }
 
 // ── Fleet Tabs (Vehicles / Registry) ─────────────────────────────────────────
