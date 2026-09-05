@@ -1499,15 +1499,28 @@ async function doAdminLogin(method) {
 
 // Customer Account & Authentication
 function switchCustAuthTab(tab) {
-    document.getElementById('custAuthTrack').style.display = tab === 'track' ? 'block' : 'none';
-    document.getElementById('custAuthAccount').style.display = tab === 'login' ? 'block' : 'none';
+    const isTrack = tab === 'track';
+    const isLogin = tab === 'login';
+    const trackSec = document.getElementById('custAuthTrack');
+    const accSec = document.getElementById('custAuthAccount');
+    if (trackSec) trackSec.style.display = isTrack ? 'block' : 'none';
+    if (accSec) accSec.style.display = isLogin ? 'block' : 'none';
 
-    document.getElementById('custTabTrack').style.color = tab === 'track' ? '#00bfff' : '#888';
-    document.getElementById('custTabTrack').style.borderBottomColor = tab === 'track' ? '#00bfff' : 'transparent';
-    document.getElementById('custTabLogin').style.color = tab === 'login' ? '#00bfff' : '#888';
-    document.getElementById('custTabLogin').style.borderBottomColor = tab === 'login' ? '#00bfff' : 'transparent';
+    const tTab = document.getElementById('custTabTrack');
+    const lTab = document.getElementById('custTabLogin');
+    if (tTab) {
+        tTab.classList.toggle('active', isTrack);
+        tTab.style.color = '';
+        tTab.style.borderBottomColor = '';
+    }
+    if (lTab) {
+        lTab.classList.toggle('active', isLogin);
+        lTab.style.color = '';
+        lTab.style.borderBottomColor = '';
+    }
 
-    document.getElementById('customerError').style.display = 'none';
+    const err = document.getElementById('customerError');
+    if (err) err.style.display = 'none';
 }
 
 function switchCustAuthMode(mode) {

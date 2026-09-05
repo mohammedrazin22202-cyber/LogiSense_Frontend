@@ -9,6 +9,7 @@
 
     --accent: #00d4ff;
     --accent-dim: #0099bb;
+    --accent-hover: #00b4d8;
     --accent-glow: rgba(0, 212, 255, 0.15);
 
     --green: #00e676;
@@ -58,7 +59,7 @@ body {
 .scanlines {
     position: fixed;
     inset: 0;
-    z-index: 9999;
+    z-index: 1;
     pointer-events: none;
     background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 0, 0, 0.03) 2px, rgba(0, 0, 0, 0.03) 4px);
 }
@@ -3065,6 +3066,9 @@ html:not([data-theme="light"]) .leaflet-tile {
     --text-primary: #1a2332;
     --text-secondary: #3a5a7a;
     --text-muted: #7a9bbf;
+    --accent: #007799;
+    --accent-dim: #005577;
+    --accent-hover: #0088b3;
     --accent-glow: rgba(0, 150, 200, 0.1);
 }
 

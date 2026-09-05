@@ -220,9 +220,13 @@
 
             <!-- Customer form -->
             <div class="login-form" id="customerForm" style="display:none">
-                <div class="cust-auth-tabs" style="display:flex; margin-bottom: 15px; border-bottom: 1px solid #1e2d3d;">
-                    <button id="custTabTrack" onclick="switchCustAuthTab('track')" style="flex:1; background:none; border:none; color:#00bfff; border-bottom: 2px solid #00bfff; padding: 10px; cursor:pointer; font-weight: bold;">Track Order</button>
-                    <button id="custTabLogin" onclick="switchCustAuthTab('login')" style="flex:1; background:none; border:none; color:#888; border-bottom: 2px solid transparent; padding: 10px; cursor:pointer; font-weight: bold;">Account Login</button>
+                <div class="auth-tabs" style="margin-bottom: 16px;">
+                    <button class="auth-tab active" id="custTabTrack" onclick="switchCustAuthTab('track')">
+                        <i class="fas fa-search-location"></i> Track Order
+                    </button>
+                    <button class="auth-tab" id="custTabLogin" onclick="switchCustAuthTab('login')">
+                        <i class="fas fa-user-circle"></i> Account Login
+                    </button>
                 </div>
 
                 <!-- Track Panel -->
@@ -393,7 +397,7 @@
 
                 <div class="login-error" id="driverError" style="display:none"></div>
                 <div id="driverDeviceBadge"
-                    style="display:none;margin:8px 0;padding:8px 12px;border-radius:8px;background:rgba(0,200,100,0.1);border:1px solid rgba(0,200,100,0.3);font-size:12px;color:var(--green);display:flex;align-items:center;gap:8px">
+                    style="display:none;margin:8px 0;padding:8px 12px;border-radius:8px;background:rgba(0,200,100,0.1);border:1px solid rgba(0,200,100,0.3);font-size:12px;color:var(--green);align-items:center;gap:8px">
                     <i class="fas fa-mobile-screen"></i> <span>Recognised device — faster login available</span>
                 </div>
                 <button class="login-back" onclick="resetLoginType()"><i class="fas fa-arrow-left"></i> Back</button>
@@ -442,7 +446,7 @@
             </button>
         </div>
 
-        <div class="cust-body" style="padding: 28px 20px !important; justify-content: flex-start !important;">
+        <div class="cust-body" style="padding: 28px 20px; justify-content: flex-start;">
             <!-- Details panel -->
             <div id="custDetailsPanel" class="cust-panel-active">
                 <div id="custSubInfo">
@@ -453,8 +457,7 @@
             <!-- Live Map panel -->
             <div id="custLivemapPanel" style="display:none; max-width: 1200px; margin: 0 auto; height: 100%;" class="cust-panel-active">
                 <div style="display: flex; align-items: center; justify-content: center; min-height: calc(100vh - 180px); width: 100%;">
-                    <!-- Inline styles applied directly here to prevent browser cache problems with style.css -->
-                    <div id="custSubMap" class="cust-submap-wrap" style="display:block; margin-bottom: 1.75cm; height: 600px; width: 100%; max-width: 1200px; position: relative; border-radius: 12px; overflow: hidden; border: 1px solid #1e2d3d;">
+                    <div id="custSubMap" class="cust-submap-wrap" style="display:block; margin-bottom: 24px; height: 600px; width: 100%; max-width: 1200px; position: relative; border-radius: 12px; overflow: hidden; border: 1px solid var(--border);">
                         <div id="custMap" style="width:100%;height:100%; z-index: 1;"></div>
                     </div>
                 </div>
@@ -852,8 +855,7 @@
                                     <span id="bulkCountBadge" class="notif-count-badge" style="display:none"></span>
                                 </div>
                                 <div id="bulkItemsList"></div>
-                                <div id="bulkTotalRow" style="display:none" class="calc-total-row"
-                                    style="margin-top:12px">
+                                <div id="bulkTotalRow" class="calc-total-row" style="display:none;margin-top:12px">
                                     <span>Estimated Batch Total</span>
                                     <span id="bulkTotalVal" class="calc-total-val"></span>
                                 </div>
@@ -1014,7 +1016,7 @@
                             <div class="cust-support-icon" style="background:rgba(255,193,7,0.08);color:#ffc107"><i
                                     class="fas fa-phone-alt"></i></div>
                             <div class="cust-support-title">Call Us</div>
-                            <div class="cust-support-desc">1800-XXX-XXXX (Toll Free)</div>
+                            <div class="cust-support-desc">1800-102-3600 (Toll Free)</div>
                             <div class="cust-support-badge">Mon–Sat 8AM–8PM</div>
                         </div>
                     </div>
@@ -1827,9 +1829,9 @@
                         <div class="pretrip-check" onclick="togglePTI('tires')"><i class="fas fa-check"></i></div>
                         <div class="pretrip-item-body">
                             <div class="pretrip-item-title"><i class="fas fa-circle-notch"
-                                    style="color:var(--text-secondary)"></i> Tyre Inspection</div>
+                                    style="color:var(--text-secondary)"></i> Tire Inspection</div>
                             <div class="pretrip-item-desc">Check pressure, tread depth, and sidewall condition on all
-                                tyres</div>
+                                tires</div>
                         </div>
                     </div>
                     <div class="pretrip-item" id="pti-fuel">
@@ -2178,8 +2180,6 @@
                     <a href="#" class="nav-link" data-page="fleet"><i class="fas fa-truck"></i><span>Fleet</span></a>
                     <a href="#" class="nav-link" data-page="warehouse"><i
                             class="fas fa-warehouse"></i><span>Warehouse</span></a>
-                    <!-- Features 6-15 nav links -->
-                    <!-- Features 16-25 nav links -->
                     <a href="#" class="nav-link" data-page="customers"><i
                             class="fas fa-building"></i><span>Customers</span></a>
                     <a href="#" class="nav-link" data-page="staff"><i class="fas fa-users-cog"></i><span>Staff /
@@ -2187,7 +2187,6 @@
                     <a href="#" class="nav-link" data-page="notif-hub"><i
                             class="fas fa-bell"></i><span>Notifications</span><span class="nav-badge" id="notifNavBadge"
                             style="display:none">0</span></a>
-                    <!-- Original remaining links -->
                 </nav>
 
                 <div class="sidebar-footer">
@@ -3154,9 +3153,6 @@
                         </div>
                     </div>
                 </div>
-
-
-
 
             <!-- ═══ WAREHOUSE PAGE ═══ -->
             <div id="warehouse-page" class="page">
