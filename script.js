@@ -7792,7 +7792,7 @@ function handleDocFile(input) {
     DocState.selectedFile = input.files[0];
     const prev = document.getElementById('docFilePreview');
     const btn = document.getElementById('docSubmitBtn');
-    if (prev) prev.innerHTML = `<i class="fas fa-file-check" style="color:var(--green)"></i> ${input.files[0].name} (${(input.files[0].size / 1024).toFixed(1)} KB)`;
+    if (prev) prev.innerHTML = `<i class="fas fa-file-circle-check" style="color:var(--green)"></i> ${input.files[0].name} (${(input.files[0].size / 1024).toFixed(1)} KB)`;
     if (btn) { btn.disabled = false; btn.style.opacity = '1'; }
 }
 
