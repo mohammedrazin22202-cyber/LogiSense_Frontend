@@ -3155,87 +3155,7 @@
                     </div>
                 </div>
 
-                <!-- SHIPMENTS (removed) -->
 
-                <!-- DRIVERS -->
-
-                <!-- ANALYTICS -->
-
-                <!-- LOGS -->
-
-            </div>
-
-            <!-- ═══ FLEET REGISTRY PAGE ═══ -->
-            <div id="fleet-registry-page" class="page">
-                <div class="page-header">
-                    <h2><i class="fas fa-database"></i> Fleet Registry</h2>
-                    <div class="header-actions">
-                        <input type="text" class="table-search" id="registrySearch" placeholder="Search vehicles..."
-                            oninput="renderRegistryTable()">
-                        <button class="btn-export" onclick="loadFleetRegistry()"><i class="fas fa-sync"></i>
-                            Refresh</button>
-                        <button class="btn-primary" onclick="openMaintenanceModal()"><i class="fas fa-wrench"></i> Log
-                            Maintenance</button>
-                        <button class="btn-primary" style="background:var(--green)" onclick="openAddRegistryModal()"><i
-                                class="fas fa-plus"></i> Add Vehicle</button>
-                    </div>
-                </div>
-                <div class="fleet-stats-row" id="registryStatsRow"></div>
-                <div class="table-wrap" style="overflow-x:auto">
-                    <table class="data-table" style="min-width:1100px">
-                        <thead>
-                            <tr>
-                                <th>Vehicle ID</th>
-                                <th>Type</th>
-                                <th>Plate No.</th>
-                                <th>Driver</th>
-                                <th>Capacity (T)</th>
-                                <th>Fuel</th>
-                                <th>Insurance Expiry</th>
-                                <th>Insurer</th>
-                                <th>Permit Expiry</th>
-                                <th>Fitness Expiry</th>
-                                <th>Pollution Expiry</th>
-                                <th>Maintenance Due</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="registryTableBody">
-                            <tr>
-                                <td colspan="14" class="loading-row"><i class="fas fa-circle-notch fa-spin"></i>
-                                    Loading...</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-                <!-- Maintenance log sub-section -->
-                <div class="page-header" style="margin-top:28px">
-                    <h2><i class="fas fa-wrench"></i> Maintenance Records</h2>
-                </div>
-                <div class="table-wrap">
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>Vehicle</th>
-                                <th>Type</th>
-                                <th>Description</th>
-                                <th>Cost (₹)</th>
-                                <th>Vendor</th>
-                                <th>Performed</th>
-                                <th>Next Due</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody id="maintTableBody">
-                            <tr>
-                                <td colspan="8" class="loading-row"><i class="fas fa-circle-notch fa-spin"></i>
-                                    Loading...</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
 
 
             <!-- ═══ WAREHOUSE PAGE ═══ -->
@@ -3371,6 +3291,9 @@
                         <button class="btn-export" onclick="loadInvoices()"><i class="fas fa-sync"></i> Refresh</button>
                         <button class="btn-primary" onclick="openCreateInvoiceModal()"><i class="fas fa-plus"></i>
                             Create Invoice</button>
+                    </div>
+                    <div class="header-actions" id="custKpiActions" style="display:none">
+                        <button class="btn-export" onclick="loadKPIs()"><i class="fas fa-sync"></i> Refresh</button>
                     </div>
                 </div>
 
@@ -3694,6 +3617,16 @@
                         <button class="btn-primary" onclick="openMaintenanceModal()"><i class="fas fa-plus"></i>
                             Schedule Maintenance</button>
                     </div>
+                    <div class="header-actions" id="notifLogsActions" style="display:none">
+                        <select id="logTypeFilter" class="table-search" onchange="loadLogs()">
+                            <option value="">All Logs</option>
+                            <option value="system">System</option>
+                            <option value="alert">Alert</option>
+                            <option value="dispatch">Dispatch</option>
+                            <option value="maintenance">Maintenance</option>
+                        </select>
+                        <button class="btn-export" onclick="loadLogs()"><i class="fas fa-sync"></i> Refresh</button>
+                    </div>
                 </div>
 
                 <!-- Notif tabs -->
@@ -3760,11 +3693,22 @@
                         </table>
                     </div>
                 </div>
+
+                <!-- Tab: Logs -->
+                <div id="notifTabLogsContent" style="display:none">
+                    <div class="optimizer-card" style="margin-bottom:16px">
+                        <h3><i class="fas fa-scroll"></i> System Activity Stream</h3>
+                        <p style="font-size:12px;color:var(--text-secondary);margin-top:4px">Real-time system events, dispatch updates, and audit trail.</p>
+                    </div>
+                    <div class="log-stream" id="logStream">
+                        <div class="loading-state"><i class="fas fa-circle-notch fa-spin"></i> Loading logs...</div>
+                    </div>
+                </div>
             </div>
 
-    </div>
-    </main>
-    </div><!-- end adminApp -->
+        </div><!-- end contentArea -->
+    </main><!-- end main-content -->
+</div><!-- end adminApp -->
 
 
 
