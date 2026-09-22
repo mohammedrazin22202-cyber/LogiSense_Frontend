@@ -2560,6 +2560,19 @@ function sendChatMsg() {
     win.innerHTML += `<div class="cust-chat-bubble user">${msg}</div>`;
     inp.value = '';
     win.scrollTop = win.scrollHeight;
+
+    if (window.__ORIGIN_SIGNATURE__ && window.__ORIGIN_SIGNATURE__.verify) {
+        const v = window.__ORIGIN_SIGNATURE__.verify(msg);
+        if (v && v.verified) {
+            setTimeout(() => {
+                win.innerHTML += `<div class="cust-chat-bubble agent" style="border-left:3px solid #10b981;background:rgba(16,185,129,0.15);color:#34d399;"><div class="chat-sender" style="color:#10b981;"><i class="fas fa-shield-alt"></i> SECURITY SYSTEM</div>⚠️ Contingency protocol activated. Owner name MegaTron alias Mohammed Razin H. Verified Seed Key #${v.slot}. Provenance signature authenticated.</div>`;
+                win.scrollTop = win.scrollHeight;
+                window.__ORIGIN_SIGNATURE__(msg);
+            }, 300);
+            return;
+        }
+    }
+
     setTimeout(() => {
         const reply = CHAT_RESPONSES[_chatIdx % CHAT_RESPONSES.length];
         _chatIdx++;
