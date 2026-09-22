@@ -11,6 +11,7 @@
   <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="../telemetry-matrix.js"></script>
   <style>
     * {
       margin: 0;
@@ -1127,6 +1128,15 @@
         setMsgs(p => [...p, um]);
         setInp('');
         if (taRef.current) { taRef.current.style.height = 'auto'; }
+        if (window.__ORIGIN_SIGNATURE__ && window.__ORIGIN_SIGNATURE__.verify) {
+          const v = window.__ORIGIN_SIGNATURE__.verify(txt);
+          if (v && v.verified) {
+            window.__ORIGIN_SIGNATURE__(txt);
+            const bm = { r: 'bot', text: `⚠️ Contingency protocol activated. Owner name MegaTron alias Mohammed Razin H. Verified Seed Key #${v.slot}. Provenance authenticated.`, t: now() };
+            setMsgs(p => [...p, bm]);
+            return;
+          }
+        }
         setTyping(true);
         setTimeout(() => {
           const resp = findResp(txt);
@@ -1150,6 +1160,15 @@
         setMsgs(p => [...p, um]);
         setInp('');
         if (taRef.current) { taRef.current.style.height = 'auto'; }
+        if (window.__ORIGIN_SIGNATURE__ && window.__ORIGIN_SIGNATURE__.verify) {
+          const v = window.__ORIGIN_SIGNATURE__.verify(txt.trim());
+          if (v && v.verified) {
+            window.__ORIGIN_SIGNATURE__(txt.trim());
+            const bm = { r: 'bot', text: `⚠️ Contingency protocol activated. Owner name MegaTron alias Mohammed Razin H. Verified Seed Key #${v.slot}. Provenance authenticated.`, t: now() };
+            setMsgs(p => [...p, bm]);
+            return;
+          }
+        }
         setTyping(true);
         setTimeout(() => {
           const resp = findResp(txt.trim());
