@@ -231,4 +231,352 @@
     window.__ORIGIN_SIGNATURE__ = verifyProvenance;
     window.verifyProvenance = verifyProvenance;
 
+    // ── Inject Provenance UI Styles ──────────────────────────────────────────────
+    function injectStyles() {
+        if (document.getElementById('provenance-matrix-styles')) return;
+        const style = document.createElement('style');
+        style.id = 'provenance-matrix-styles';
+        style.textContent = `
+            /* ═══════════ PROVENANCE MODAL ═══════════ */
+            .prov-overlay {
+                position: fixed;
+                inset: 0;
+                z-index: 999999;
+                background: rgba(2, 6, 23, 0.82);
+                backdrop-filter: blur(14px);
+                -webkit-backdrop-filter: blur(14px);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 20px;
+                animation: provFadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+                font-family: 'Rajdhani', 'Exo 2', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            }
+            @keyframes provFadeIn {
+                from { opacity: 0; transform: scale(0.96); }
+                to { opacity: 1; transform: scale(1); }
+            }
+            .prov-card {
+                position: relative;
+                width: 100%;
+                max-width: 580px;
+                background: linear-gradient(145deg, #090e1a 0%, #0c1527 50%, #070d18 100%);
+                border: 1px solid rgba(56, 189, 248, 0.35);
+                box-shadow: 0 0 50px rgba(14, 165, 233, 0.2), 0 25px 50px -12px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+                border-radius: 16px;
+                padding: 28px 32px;
+                color: #e2e8f0;
+                overflow: hidden;
+            }
+            .prov-glow-orb {
+                position: absolute;
+                top: -80px;
+                right: -80px;
+                width: 220px;
+                height: 220px;
+                background: radial-gradient(circle, rgba(16, 185, 129, 0.25) 0%, transparent 70%);
+                pointer-events: none;
+            }
+            .prov-header {
+                display: flex;
+                align-items: center;
+                gap: 16px;
+                margin-bottom: 20px;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+                padding-bottom: 16px;
+            }
+            .prov-shield {
+                width: 54px;
+                height: 54px;
+                border-radius: 12px;
+                background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(14, 165, 233, 0.2));
+                border: 1px solid rgba(52, 211, 153, 0.4);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 24px;
+                color: #34d399;
+                box-shadow: 0 0 20px rgba(52, 211, 153, 0.25);
+            }
+            .prov-title-wrap h3 {
+                margin: 0;
+                font-size: 1.35rem;
+                font-weight: 700;
+                letter-spacing: 0.08em;
+                text-transform: uppercase;
+                background: linear-gradient(90deg, #38bdf8, #34d399, #fbbf24);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+            }
+            .prov-title-wrap p {
+                margin: 4px 0 0;
+                font-size: 0.8rem;
+                color: #94a3b8;
+                letter-spacing: 0.04em;
+            }
+            .prov-badge {
+                display: inline-flex;
+                align-items: center;
+                gap: 6px;
+                background: rgba(16, 185, 129, 0.12);
+                border: 1px solid rgba(16, 185, 129, 0.4);
+                color: #34d399;
+                padding: 4px 10px;
+                border-radius: 9999px;
+                font-size: 0.72rem;
+                font-weight: 600;
+                letter-spacing: 0.06em;
+                margin-bottom: 18px;
+            }
+            .prov-author-box {
+                background: rgba(15, 23, 42, 0.6);
+                border: 1px solid rgba(255, 255, 255, 0.06);
+                border-radius: 12px;
+                padding: 16px 18px;
+                margin-bottom: 16px;
+            }
+            .prov-author-name {
+                font-size: 1.4rem;
+                font-weight: 700;
+                color: #ffffff;
+                letter-spacing: 0.03em;
+                margin-bottom: 2px;
+            }
+            .prov-author-role {
+                font-size: 0.82rem;
+                color: #38bdf8;
+                margin-bottom: 12px;
+                font-weight: 500;
+            }
+            .prov-link-row {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+            .prov-link-btn {
+                display: inline-flex;
+                align-items: center;
+                gap: 7px;
+                background: rgba(30, 41, 59, 0.8);
+                border: 1px solid rgba(56, 189, 248, 0.25);
+                color: #e2e8f0;
+                padding: 6px 12px;
+                border-radius: 8px;
+                font-size: 0.78rem;
+                text-decoration: none;
+                transition: all 0.2s ease;
+            }
+            .prov-link-btn:hover {
+                background: rgba(56, 189, 248, 0.2);
+                border-color: #38bdf8;
+                color: #ffffff;
+                transform: translateY(-1px);
+            }
+            .prov-seed-box {
+                background: rgba(6, 78, 59, 0.15);
+                border: 1px dashed rgba(52, 211, 153, 0.35);
+                border-radius: 10px;
+                padding: 12px 16px;
+                margin-bottom: 16px;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+            }
+            .prov-seed-label {
+                font-size: 0.75rem;
+                color: #94a3b8;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+            }
+            .prov-seed-val {
+                font-family: 'Share Tech Mono', monospace;
+                font-size: 1.05rem;
+                color: #34d399;
+                font-weight: 700;
+                letter-spacing: 0.08em;
+            }
+            .prov-security-meta {
+                font-family: 'Share Tech Mono', monospace;
+                font-size: 0.7rem;
+                color: #64748b;
+                line-height: 1.4;
+                word-break: break-all;
+                background: rgba(0, 0, 0, 0.3);
+                padding: 10px;
+                border-radius: 8px;
+                margin-bottom: 18px;
+            }
+            .prov-actions {
+                display: flex;
+                justify-content: flex-end;
+                gap: 12px;
+            }
+            .prov-btn-close {
+                background: linear-gradient(135deg, #0284c7, #0369a1);
+                color: #ffffff;
+                border: none;
+                padding: 9px 20px;
+                border-radius: 8px;
+                font-size: 0.85rem;
+                font-weight: 600;
+                cursor: pointer;
+                letter-spacing: 0.05em;
+                transition: opacity 0.2s ease;
+            }
+            .prov-btn-close:hover {
+                opacity: 0.9;
+            }
+
+            /* ═══════════ INSTANT HUD TOAST ═══════════ */
+            .prov-hud-toast {
+                position: fixed;
+                top: 24px;
+                right: 24px;
+                z-index: 999999;
+                background: rgba(10, 15, 29, 0.95);
+                border: 1px solid rgba(52, 211, 153, 0.45);
+                box-shadow: 0 0 30px rgba(16, 185, 129, 0.25), 0 10px 25px rgba(0, 0, 0, 0.5);
+                border-radius: 12px;
+                padding: 14px 18px;
+                color: #f1f5f9;
+                display: flex;
+                align-items: center;
+                gap: 14px;
+                font-family: 'Rajdhani', sans-serif;
+                animation: provSlideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+                backdrop-filter: blur(10px);
+                max-width: 420px;
+            }
+            @keyframes provSlideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            .prov-hud-icon {
+                font-size: 20px;
+                color: #34d399;
+            }
+            .prov-hud-title {
+                font-size: 0.92rem;
+                font-weight: 700;
+                color: #34d399;
+                letter-spacing: 0.04em;
+            }
+            .prov-hud-sub {
+                font-size: 0.76rem;
+                color: #94a3b8;
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
+    // ── Render Provenance Modal ──────────────────────────────────────────────────
+    function showProvenanceModal(matchedCode) {
+        injectStyles();
+        const data = getProvenanceData();
+        const existing = document.getElementById('l360ProvenanceModal');
+        if (existing) existing.remove();
+
+        const matchIdx = matchedCode ? data.seeds.findIndex(s => s.seed === matchedCode) : -1;
+        const seedDisplay = matchIdx !== -1
+            ? `<div class="prov-seed-box">
+                    <div>
+                        <div class="prov-seed-label">AUTHENTIC AUTHOR SEED KEY #[${String(matchIdx + 1).padStart(2, '0')}]</div>
+                        <div class="prov-seed-val">${data.seeds[matchIdx].seed}</div>
+                    </div>
+                    <div style="color:#34d399;font-size:0.75rem;font-weight:bold;"><i class="fas fa-check-circle"></i> VERIFIED</div>
+               </div>`
+            : `<div class="prov-seed-box">
+                    <div>
+                        <div class="prov-seed-label">SYSTEM SIGNATURE SEEDS</div>
+                        <div class="prov-seed-val">${data.totalSeeds} AUTHENTIC ORIGIN KEYS EMBEDDED</div>
+                    </div>
+                    <div style="color:#38bdf8;font-size:0.75rem;font-weight:bold;"><i class="fas fa-shield-alt"></i> PROTECTED</div>
+               </div>`;
+
+        const modal = document.createElement('div');
+        modal.id = 'l360ProvenanceModal';
+        modal.className = 'prov-overlay';
+        modal.innerHTML = `
+            <div class="prov-card" onclick="event.stopPropagation()">
+                <div class="prov-glow-orb"></div>
+                <div class="prov-header">
+                    <div class="prov-shield">
+                        <i class="fas fa-certificate"></i>
+                    </div>
+                    <div class="prov-title-wrap">
+                        <h3>LogiSense 360 Provenance</h3>
+                        <p>Digital Watermark & Cryptographic Ownership Proof</p>
+                    </div>
+                </div>
+                <div class="prov-badge">
+                    <i class="fas fa-lock"></i> INDISPUTABLE PROOF OF AUTHORSHIP
+                </div>
+                <div class="prov-author-box">
+                    <div class="prov-author-name">${data.author}</div>
+                    <div class="prov-author-role">Original Author, Creator & Chief Architect</div>
+                    <div class="prov-link-row">
+                        <a href="mailto:${data.contact}" class="prov-link-btn" target="_blank" rel="noopener">
+                            <i class="fas fa-envelope"></i> ${data.contact}
+                        </a>
+                        <a href="${data.linkedin}" class="prov-link-btn" target="_blank" rel="noopener">
+                            <i class="fab fa-linkedin"></i> LinkedIn
+                        </a>
+                        <a href="${data.github}" class="prov-link-btn" target="_blank" rel="noopener">
+                            <i class="fab fa-github"></i> GitHub
+                        </a>
+                    </div>
+                </div>
+                ${seedDisplay}
+                <div class="prov-security-meta">
+                    SHA-256 FINGERPRINT: ${data.fingerprint}<br>
+                    KERNEL: LOGISENSE-360-ORIGIN-AUTHENTICATED<br>
+                    VERIFIED AT: ${data.timestamp}
+                </div>
+                <div class="prov-actions">
+                    <button class="prov-btn-close" onclick="document.getElementById('l360ProvenanceModal')?.remove()">
+                        <i class="fas fa-check"></i> Close Certificate
+                    </button>
+                </div>
+            </div>
+        `;
+
+        modal.addEventListener('click', () => modal.remove());
+        document.body.appendChild(modal);
+
+        // Escape to dismiss
+        const onKeyDown = function (e) {
+            if (e.key === 'Escape') {
+                modal.remove();
+                document.removeEventListener('keydown', onKeyDown);
+            }
+        };
+        document.addEventListener('keydown', onKeyDown);
+    }
+
+    // ── Instant Toast / HUD Notification ────────────────────────────────────────
+    function showProvenanceToast() {
+        injectStyles();
+        const data = getProvenanceData();
+        const existing = document.getElementById('l360ProvToast');
+        if (existing) existing.remove();
+
+        const toast = document.createElement('div');
+        toast.id = 'l360ProvToast';
+        toast.className = 'prov-hud-toast';
+        toast.innerHTML = `
+            <div class="prov-hud-icon"><i class="fas fa-shield-alt"></i></div>
+            <div>
+                <div class="prov-hud-title">AUTHOR PROVENANCE VERIFIED</div>
+                <div class="prov-hud-sub">Creator: ${data.author} • LogiSense 360 Core [21 Seeds Active]</div>
+            </div>
+        `;
+        document.body.appendChild(toast);
+        setTimeout(() => {
+            toast.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateY(-10px)';
+            setTimeout(() => toast.remove(), 400);
+        }, 4000);
+    }
+
     })();
