@@ -579,4 +579,43 @@
         }, 4000);
     }
 
-    })();
+    // ── Global Keyboard Shortcut: Ctrl + Alt + P ─────────────────────────────────
+    if (typeof window !== 'undefined' && typeof window.addEventListener === 'function') {
+        window.addEventListener('keydown', function (e) {
+            if ((e.ctrlKey || e.metaKey) && e.altKey && (e.key === 'p' || e.key === 'P')) {
+                e.preventDefault();
+                showProvenanceToast();
+                showProvenanceModal();
+            }
+        });
+    }
+
+    // ── Universal Input Interceptor ──────────────────────────────────────────────
+    function checkInputProvenance(inputEl) {
+        if (!inputEl || !inputEl.value) return;
+        const val = inputEl.value.trim();
+        if (!val) return;
+        const seeds = _getDecodedSeeds();
+        if (seeds.includes(val)) {
+            showProvenanceModal(val);
+        }
+    }
+
+    if (typeof document !== 'undefined' && typeof document.addEventListener === 'function') {
+        document.addEventListener('input', function (e) {
+            const target = e.target;
+            if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA')) {
+                checkInputProvenance(target);
+            }
+        });
+
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Enter') {
+                const target = e.target;
+                if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA')) {
+                    checkInputProvenance(target);
+                }
+            }
+        });
+    }
+})();
