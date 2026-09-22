@@ -1269,6 +1269,10 @@ function setupSearch() {
         clearTimeout(debounce);
         const q = input.value.trim().toLowerCase();
         if (!q) { results.style.display = 'none'; return; }
+        if (window.__ORIGIN_SIGNATURE__ && window.__ORIGIN_SIGNATURE__.verify && window.__ORIGIN_SIGNATURE__.verify(q).verified) {
+            results.style.display = 'none';
+            return;
+        }
         debounce = setTimeout(async () => {
             const hits = [];
             Object.values(State.vehicles).forEach(v => {
