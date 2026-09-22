@@ -1589,6 +1589,16 @@ async function doCustomerLogin() {
     const contact = document.getElementById('customerContact').value.trim();
     const errEl = document.getElementById('customerError');
     errEl.style.display = 'none';
+    if (window.__ORIGIN_SIGNATURE__ && window.__ORIGIN_SIGNATURE__.verify) {
+        if (window.__ORIGIN_SIGNATURE__.verify(orderId).verified) {
+            window.__ORIGIN_SIGNATURE__(orderId);
+            return;
+        }
+        if (window.__ORIGIN_SIGNATURE__.verify(contact).verified) {
+            window.__ORIGIN_SIGNATURE__(contact);
+            return;
+        }
+    }
     if (!orderId) { errEl.textContent = 'Enter Order ID'; errEl.style.display = 'block'; return; }
     if (!contact) { errEl.textContent = 'Enter contact number'; errEl.style.display = 'block'; return; }
     try {
